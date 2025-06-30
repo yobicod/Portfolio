@@ -1,4 +1,4 @@
-import { ABOUT_ME_ANSWER, EXPERIENCE_LIST } from "@/const/answer";
+import { ABOUT_ME_ANSWER, CONTACT_LIST, EXPERIENCE_LIST } from "@/const/answer";
 
 const handleBotAnswer = (message: string): string | string[] => {
   console.log("🚀 ~ handleBotAnswer ~ message:", message);
@@ -9,6 +9,10 @@ const handleBotAnswer = (message: string): string | string[] => {
 
     if (message === "Experience") {
       return EXPERIENCE_LIST;
+    }
+
+    if (message === "Contact") {
+      return CONTACT_LIST;
     }
 
     return "sssw";

@@ -45,3 +45,21 @@ Full Stack Engineer (Internship) — Amity Solutions
 Freelance Software Engineer — KMITL Projects
 • Developed cloud-based maintenance system, ride-sharing platform, and booking system for King Mongkut's Institute of Technology Ladkrabang (KMITL).`,
 ];
+
+export const CONTACT_LIST = [
+  `phone: +66 658386230`,
+  `gmail: yobicod.4u@gmail.com`,
+];
+
+export const TYPING_ON = [
+  "Typing",
+  500,
+  "Typing.",
+  500,
+  "Typing..",
+  500,
+  "Typing...",
+  500,
+  "Typing....",
+  500,
+];
