@@ -24,7 +24,15 @@ const handleBotAnswer = (message: string): string | string[] => {
     }
 
     // Handle gen ai response here
-    return "Generative AI🤖 response coming soon~";
+    return `She'd take the world off my shoulders
+If it was ever hard to move
+She'd turn the rain to a rainbow
+When I was living in the blue
+Why then, if she's so perfect
+Do I still wish that it was you?
+Perfect don't mean that it's workin'
+So what can I do? (Ooh)
+`;
   } catch (err) {
     console.log(err);
     return "Sorry I can't answer now 😢";

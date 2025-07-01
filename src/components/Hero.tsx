@@ -51,16 +51,20 @@ const Hero = () => {
           height={250}
           initial={{ opacity: 0, y: 0, rotate: 0 }}
           animate={{
-            rotate: 0,
             opacity: 1,
-            y: [0, -10, 0], // 👈 float up then back
+            y: [0, -10, 0], // Float up & down
+            rotate: [-2, 2, -2], // Left → right → left
           }}
           transition={{
-            rotate: { duration: 1, ease: "easeOut" },
             opacity: { duration: 1 },
             y: {
-              delay: 1, // after rotation
               duration: 2,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "easeInOut",
+            },
+            rotate: {
+              duration: 6, // Slower rotation for natural feel
               repeat: Infinity,
               repeatType: "loop",
               ease: "easeInOut",

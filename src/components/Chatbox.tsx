@@ -53,7 +53,8 @@ const Chatbox = () => {
 
   const appendBotText = (text: string) => {
     let index = 0;
-    const speed = 30 + Math.random() * 70;
+    // const speed = 30 + Math.random() * 70;
+    const speed = 30; // lower is faster
 
     setMessages((prev) => {
       const last = prev.at(-1);
@@ -97,7 +98,7 @@ const Chatbox = () => {
         setTimeout(() => {
           setMessages((prev) => [...prev, { role: "bot", text: item }]);
           if (idx === answer.length - 1) stopTyping();
-        }, idx * 500);
+        }, idx * 1000);
       });
     } else {
       appendBotText(answer);
