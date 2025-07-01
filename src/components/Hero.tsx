@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { JOB_DESCRIPTION } from "@/const/information";
 import { useTopic } from "@/context/TopicContext";
 import Celebrate from "./Celebrate";
+import { utilsService } from "@/utils/utils";
 
 const Hero = () => {
   const { topic, isTyping } = useTopic();
@@ -99,6 +100,10 @@ const Hero = () => {
             className="flex justify-center gap-4 mt-4 cursor-pointer"
             onClick={() => {
               setIsCelebrate(true);
+              const lofiAudio = new Audio("/everyone_celebrate_lofi.mp3");
+              lofiAudio.currentTime = 0; // Rewind if clicked repeatedly
+              lofiAudio.play();
+              utilsService.fadeOutSound(lofiAudio);
             }}
           >
             <p className="text-lg font-medium px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full shadow-md hover:scale-105 transition-transform duration-300">
