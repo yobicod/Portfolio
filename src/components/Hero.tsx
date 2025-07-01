@@ -1,14 +1,16 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { GITHUB_URL, LINKEDIN_URL } from "@/const/link";
 import { TypeAnimation } from "react-type-animation";
 import { motion } from "framer-motion";
 import { JOB_DESCRIPTION } from "@/const/information";
 import { useTopic } from "@/context/TopicContext";
+import Celebrate from "./Celebrate";
 
 const Hero = () => {
   const { topic, isTyping } = useTopic();
+  const [isCelebrate, setIsCelebrate] = useState<boolean>(false);
 
   const mapImageByTopic = (topic: string, isTyping: boolean): string => {
     if (isTyping) return "/dev_thinking.png";
@@ -33,6 +35,7 @@ const Hero = () => {
 
   return (
     <section className="min-h-8/12 flex items-center justify-center ">
+      {isCelebrate && <Celebrate />}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -89,6 +92,16 @@ const Hero = () => {
             speed={50}
             repeat={Infinity}
           />
+        </div>
+        <div
+          className="flex justify-center gap-4 mt-4 cursor-pointer"
+          onClick={() => {
+            setIsCelebrate(true);
+          }}
+        >
+          <p className="text-lg font-medium px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full shadow-md hover:scale-105 transition-transform duration-300">
+            🥳 Celebrate on my promotion 🎉
+          </p>
         </div>
         {/* <p className="text-base sm:text-lg md:text-xl mt-4">
           Fullstack Engineer AI Specialist from 🇹🇭
