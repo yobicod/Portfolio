@@ -23,6 +23,7 @@ const handleBotAnswer = (message: string): string | string[] => {
       return "Tech stack information, Coming soon...";
     }
 
+    // Handle gen ai response here
     return "Generative AI🤖 response coming soon~";
   } catch (err) {
     console.log(err);
