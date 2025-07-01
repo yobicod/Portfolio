@@ -74,6 +74,13 @@ const Hero = () => {
           <Link href={`${LINKEDIN_URL}`} className="text-primary underline">
             Linkedin
           </Link>
+          <a
+            href={`/visal_suwanarat_cv.pdf`}
+            download={true}
+            className="text-primary underline"
+          >
+            CV
+          </a>
         </div>
 
         <div className="text-base sm:text-lg md:text-xl mt-4">
