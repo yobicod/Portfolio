@@ -141,6 +141,11 @@ const Chatbox = () => {
   }, []);
 
   useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+  useEffect(() => {
     if (input.trim()) {
       const isWhitelisted = QUICK_REPLY.some(
         (chip) => chip.label.trim().toLowerCase() === input.trim().toLowerCase()
