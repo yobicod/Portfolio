@@ -1,12 +1,10 @@
-export const ABOUT_ME_ANSWER = `🚀 Hey, I'm Visal, also known as yobicod, a graduated IT student at KMITL. 🌟
+export const ABOUT_ME_ANSWER = `Heyy, I’m Visal (aka yobicod), an IT graduate from KMITL with a passion for software development. I started coding at 15 and have been hooked ever since — building projects, solving problems, and exploring new technologies.
 
-🖥️ My journey in IT has been a rollercoaster of excitement, diving deep into the world of software development. I got hooked on programming at 15, and since then, I've been on a wild ride. I've played around with various languages and frameworks, crafting code, solving puzzles, and just enjoying the thrill of creating cool stuff.
+💡 I love creating practical, impactful solutions and thrive in fast-moving environments. Whether it's full-stack development or diving into AI, I'm all about learning, growing, and building cool stuff.
 
-🌐 Ready to dive headfirst into the ever-changing world of tech, I want to bring my creative solutions to the table. My goal? To use emerging technologies to make a real impact in the tech scene.
+🚀 I’m currently looking for exciting opportunities to collaborate, innovate, and make meaningful contributions in tech. Let’s connect!
 
-🔍 Currently on the lookout for opportunities to bring my passion and skills into a professional space. I want to collaborate, innovate, and make a meaningful contribution. If you're an enthusiast, mentor, or just someone cool in the industry, let's connect! I'm all about learning, growing, and having a blast on this exciting journey!
-
-Let's explore the endless possibilities that tech has to offer! 🚀✨`;
+`;
 
 export const EXPERIENCE = `💼 Experience
 Apr 2024 – Present
@@ -47,7 +45,7 @@ Freelance Software Engineer — KMITL Projects
 ];
 
 export const CONTACT_LIST = [
-  `📞 phone : +66 658386230`,
+  `📞 phone : +66 6583862xx`,
   `💌 gmail : yobicod.4u@gmail.com`,
 ];
 

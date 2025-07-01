@@ -1,10 +1,36 @@
 "use client";
-import React from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import React from "react";
 import { GITHUB_URL, LINKEDIN_URL } from "@/const/link";
+import { TypeAnimation } from "react-type-animation";
+import { motion } from "framer-motion";
+import { JOB_DESCRIPTION } from "@/const/information";
+import { useTopic } from "@/context/TopicContext";
 
 const Hero = () => {
+  const { topic, isTyping } = useTopic();
+
+  const mapImageByTopic = (topic: string, isTyping: boolean): string => {
+    if (isTyping) return "/dev_thinking.png";
+    switch (topic) {
+      case "":
+        return "/dev_smile.png";
+      case "About me":
+        return "/dev_smile.png";
+      case "Experience":
+        return "/dev_interest.png";
+      case "Project":
+        return "/dev_two_fingers.png";
+      case "Contact":
+        return "/dev_u_got_it.png";
+      case "Tech stack":
+        return "/coding.png";
+
+      default:
+        return "/coding.png";
+    }
+  };
+
   return (
     <section className="min-h-8/12 flex items-center justify-center ">
       <motion.div
@@ -14,12 +40,12 @@ const Hero = () => {
         className="text-center"
       >
         <motion.img
-          src="/coding.png"
-          alt="coding picture"
+          src={mapImageByTopic(topic, isTyping)}
+          alt="Hero image"
           className="mx-auto"
           width={250}
           height={250}
-          initial={{ opacity: 0, y: 0 }}
+          initial={{ opacity: 0, y: 0, rotate: 0 }}
           animate={{
             rotate: 0,
             opacity: 1,
@@ -37,8 +63,9 @@ const Hero = () => {
             },
           }}
         />
+
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
-          Hello, I’m Visal
+          Hello, I’m Visal🇹🇭
         </h1>
         <div className="flex justify-center gap-4 mt-2">
           <Link href={`${GITHUB_URL}`} className="text-primary underline">
@@ -48,9 +75,17 @@ const Hero = () => {
             Linkedin
           </Link>
         </div>
-        <p className="text-base sm:text-lg md:text-xl mt-4">
+
+        <div className="text-base sm:text-lg md:text-xl mt-4">
+          <TypeAnimation
+            sequence={JOB_DESCRIPTION}
+            speed={50}
+            repeat={Infinity}
+          />
+        </div>
+        {/* <p className="text-base sm:text-lg md:text-xl mt-4">
           Fullstack Engineer AI Specialist from 🇹🇭
-        </p>
+        </p> */}
       </motion.div>
     </section>
   );

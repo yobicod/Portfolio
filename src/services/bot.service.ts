@@ -15,7 +15,15 @@ const handleBotAnswer = (message: string): string | string[] => {
       return CONTACT_LIST;
     }
 
-    return "sssw";
+    if (message === "Project") {
+      return "Project information, Coming soon...";
+    }
+
+    if (message === "Tech stack") {
+      return "Tech stack information, Coming soon...";
+    }
+
+    return "Generative AI🤖 response coming soon~";
   } catch (err) {
     console.log(err);
     return "Sorry I can't answer now 😢";

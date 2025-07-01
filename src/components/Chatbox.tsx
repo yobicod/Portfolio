@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
-// import { motion } from "framer-motion";
 
 import {
   Chip,
@@ -17,12 +16,14 @@ import { TypeAnimation } from "react-type-animation";
 import { botService } from "@/services/bot.service";
 import { motion } from "framer-motion";
 import { GREETING_MESSAGE, TYPING_ON } from "@/const/answer";
+import { useTopic } from "@/context/TopicContext";
 type Message = {
   role: "user" | "bot";
   text: string;
 };
 
 const Chatbox = () => {
+  const { setTopic, setIsTyping } = useTopic(); // topic context
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", text: GREETING_MESSAGE },
   ]);
@@ -35,45 +36,75 @@ const Chatbox = () => {
 
   const streamTextResponse = (text: string) => {
     let index = 0;
-    const speeds = [300, 400];
-    const random = Math.floor(Math.random() * speeds.length);
+    const speed = 30 + Math.random() * 70; // smoother typing (30-100ms)
+
+    setMessages((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.role !== "bot") {
+        // Start with empty message
+        return [...prev, { role: "bot", text: "" }];
+      }
+      return prev;
+    });
+
     const interval = setInterval(() => {
+      // Character to add at this step
+      const char = text[index];
+
+      if (!char) {
+        clearInterval(interval);
+        setIsDisableInput(false);
+        setIsTyping(false);
+        return;
+      }
+
       setMessages((prev) => {
         const last = prev[prev.length - 1];
-        if (!last || last.role !== "bot") {
-          // Start streaming with empty string
-          return [...prev, { role: "bot", text: text.charAt(0) }];
-        }
-
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
           ...last,
-          text: last.text + text.charAt(index),
+          text: last.text + char,
         };
         return newMessages;
       });
 
       index++;
-      if (index >= text.length) {
-        clearInterval(interval);
-        setIsDisableInput(false);
-      }
-    }, random); // speed (ms per char)
+    }, speed);
   };
 
   const handleSend = () => {
     setIsDisableInput(true);
+    setIsTyping(true);
+
     if (!input.trim()) return;
+
     setMessages((prev) => [...prev, { role: "user", text: input }]);
+
     setInput("");
 
     // Fake response
     setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "This is a demo response." },
-      ]);
+      const answer = botService.answer(input);
+
+      if (Array.isArray(answer)) {
+        answer.forEach((item, idx) => {
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { role: "bot", text: item }]);
+
+            // ✅ Only enable input after the LAST item is sent
+            if (idx === answer.length - 1) {
+              setIsDisableInput(false);
+              setIsTyping(false);
+              setIsClickQuickReply(false);
+            }
+          }, idx * 500); // delay per message
+        });
+      } else {
+        streamTextResponse(answer); // this will re-enable input when done
+      }
+      setIsClickQuickReply(false);
       setIsDisableInput(false);
+      setIsTyping(false);
     }, 5000);
   };
 
@@ -100,6 +131,8 @@ const Chatbox = () => {
 
     if (whileListInput.includes(input.toLowerCase()) && isClickQuickReply) {
       setIsDisableInput(true);
+      setIsTyping(true);
+
       setMessages((prev) => [...prev, { role: "user", text: input }]);
       const answer = botService.answer(input);
       setInput("");
@@ -113,6 +146,7 @@ const Chatbox = () => {
               // ✅ Only enable input after the LAST item is sent
               if (idx === answer.length - 1) {
                 setIsDisableInput(false);
+                setIsTyping(false);
                 setIsClickQuickReply(false);
               }
             }, idx * 500); // delay per message
@@ -152,6 +186,7 @@ const Chatbox = () => {
               disabled={isDisableInput}
               onClick={() => {
                 setInput(chip.label);
+                setTopic(chip.label);
                 setIsClickQuickReply(true);
               }}
               sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
