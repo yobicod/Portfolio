@@ -93,16 +93,20 @@ const Hero = () => {
             repeat={Infinity}
           />
         </div>
-        <div
-          className="flex justify-center gap-4 mt-4 cursor-pointer"
-          onClick={() => {
-            setIsCelebrate(true);
-          }}
-        >
-          <p className="text-lg font-medium px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full shadow-md hover:scale-105 transition-transform duration-300">
-            🥳 Celebrate on my promotion 🎉
-          </p>
-        </div>
+
+        {!isCelebrate && (
+          <div
+            className="flex justify-center gap-4 mt-4 cursor-pointer"
+            onClick={() => {
+              setIsCelebrate(true);
+            }}
+          >
+            <p className="text-lg font-medium px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full shadow-md hover:scale-105 transition-transform duration-300">
+              🥳 Celebrate on my promotion 🎉
+            </p>
+          </div>
+        )}
+
         {/* <p className="text-base sm:text-lg md:text-xl mt-4">
           Fullstack Engineer AI Specialist from 🇹🇭
         </p> */}
