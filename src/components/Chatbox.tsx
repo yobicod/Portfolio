@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import SendIcon from "@mui/icons-material/Send";
+// import { motion } from "framer-motion";
 
 import {
   Chip,
@@ -15,7 +16,7 @@ import { QUICK_REPLY } from "@/const/quickReply";
 import { TypeAnimation } from "react-type-animation";
 import { botService } from "@/services/bot.service";
 import { motion } from "framer-motion";
-import { TYPING_ON } from "@/const/answer";
+import { GREETING_MESSAGE, TYPING_ON } from "@/const/answer";
 type Message = {
   role: "user" | "bot";
   text: string;
@@ -23,7 +24,7 @@ type Message = {
 
 const Chatbox = () => {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", text: "Hi! How can I help you today?" },
+    { role: "bot", text: GREETING_MESSAGE },
   ]);
 
   const [mounted, setMounted] = useState(false);
@@ -78,7 +79,7 @@ const Chatbox = () => {
 
   const handleRefresh = () => {
     if (!isDisableInput) {
-      setMessages([{ role: "bot", text: "Hi! How can I help you today?" }]);
+      setMessages([{ role: "bot", text: GREETING_MESSAGE }]);
     }
   };
 

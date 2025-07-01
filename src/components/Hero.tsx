@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { GITHUB_URL, LINKEDIN_URL } from "@/const/link";
 
 const Hero = () => {
   return (
@@ -38,6 +40,14 @@ const Hero = () => {
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">
           Hello, I’m Visal
         </h1>
+        <div className="flex justify-center gap-4 mt-2">
+          <Link href={`${GITHUB_URL}`} className="text-primary underline">
+            Github
+          </Link>
+          <Link href={`${LINKEDIN_URL}`} className="text-primary underline">
+            Linkedin
+          </Link>
+        </div>
         <p className="text-base sm:text-lg md:text-xl mt-4">
           Fullstack Engineer AI Specialist from 🇹🇭
         </p>

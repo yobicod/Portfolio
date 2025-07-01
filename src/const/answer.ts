@@ -47,8 +47,8 @@ Freelance Software Engineer — KMITL Projects
 ];
 
 export const CONTACT_LIST = [
-  `phone: +66 658386230`,
-  `gmail: yobicod.4u@gmail.com`,
+  `📞 phone : +66 658386230`,
+  `💌 gmail : yobicod.4u@gmail.com`,
 ];
 
 export const TYPING_ON = [
@@ -63,3 +63,5 @@ export const TYPING_ON = [
   "Typing....",
   500,
 ];
+
+export const GREETING_MESSAGE = `Oh hi~ nice to meet you`;
