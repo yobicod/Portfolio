@@ -27,18 +27,18 @@ Freelance Software Engineer — KMITL Projects
 `;
 
 export const EXPERIENCE_LIST = [
-  `Apr 2024 – Present
+  `June 2025 – Present
+Full Stack Engineer — Amity Solutions
+• Developed a Gen-AI Knowledge Base chatbot using LLMs to provide intelligent, real-time responses for customer support and internal information retrieval.
+`,
+  `Apr 2024 – May 2025
 Junior Full Stack Engineer — Amity Solutions
 • Developed a Gen-AI Knowledge Base chatbot using LLMs to provide intelligent, real-time responses for customer support and internal information retrieval.
 `,
   `Jun 2023 – Oct 2023
 Full Stack Engineer (Internship) — Amity Solutions
 • Contributed to web app development, chatbot integration, and AWS infrastructure deployment using Serverless Framework and Terraform.`,
-
-  `Jun 2023 – Oct 2023
-Full Stack Engineer (Internship) — Amity Solutions
-• Contributed to web app development, chatbot integration, and AWS infrastructure deployment using Serverless Framework and Terraform.
-`,
+  ,
   `Oct 2020 – Feb 2023
 Freelance Software Engineer — KMITL Projects
 • Developed cloud-based maintenance system, ride-sharing platform, and booking system for King Mongkut's Institute of Technology Ladkrabang (KMITL).`,
