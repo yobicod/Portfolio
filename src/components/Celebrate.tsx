@@ -1,9 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
 
-const Celebrate = () => {
+/** Duration in ms before stopping new confetti generation */
+const STOP_RECYCLE_DELAY_MS = 5000;
+
+/** Duration in ms before fully stopping the animation */
+const STOP_RUNNING_DELAY_MS = 8000;
+
+/** Number of confetti pieces to render */
+const CONFETTI_PIECES = 300;
+
+/**
+ * Celebration component that displays confetti animation
+ * Auto-stops generating new confetti after 5s and fully stops after 8s
+ */
+const Celebrate = memo(function Celebrate() {
   const [isClient, setIsClient] = useState(false);
   const [isRunning, setIsRunning] = useState(true);
   const [recycle, setRecycle] = useState(true);
@@ -12,15 +25,13 @@ const Celebrate = () => {
   useEffect(() => {
     setIsClient(true);
 
-    // Stop generating new confetti after 5s
     const stopRecycle = setTimeout(() => {
       setRecycle(false);
-    }, 5000);
+    }, STOP_RECYCLE_DELAY_MS);
 
-    // Fully stop the animation after 8s
     const stopRunning = setTimeout(() => {
       setIsRunning(false);
-    }, 8000);
+    }, STOP_RUNNING_DELAY_MS);
 
     return () => {
       clearTimeout(stopRecycle);
@@ -36,11 +47,11 @@ const Celebrate = () => {
         width={width}
         height={height}
         wind={0}
-        recycle={recycle} // disables adding new confetti after 5s
-        numberOfPieces={300} // default: you can reduce if needed
+        recycle={recycle}
+        numberOfPieces={CONFETTI_PIECES}
       />
     </div>
   );
-};
+});
 
 export default Celebrate;

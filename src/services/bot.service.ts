@@ -1,30 +1,17 @@
-import { ABOUT_ME_ANSWER, CONTACT_LIST, EXPERIENCE_LIST } from "@/const/answer";
+import {
+  ABOUT_ME_ANSWER,
+  CONTACT_LIST,
+  EXPERIENCE_LIST,
+} from "@/constants/answer";
 
-const handleBotAnswer = (message: string): string | string[] => {
-  console.log("🚀 ~ handleBotAnswer ~ message:", message);
-  try {
-    if (message === "About me") {
-      return ABOUT_ME_ANSWER;
-    }
+/** Response type that can be a single message or array of messages */
+export type BotResponse = string | string[];
 
-    if (message === "Experience") {
-      return EXPERIENCE_LIST;
-    }
+/** Error message shown when bot fails to respond */
+const ERROR_MESSAGE = "Sorry I can't answer now 😢";
 
-    if (message === "Contact") {
-      return CONTACT_LIST;
-    }
-
-    if (message === "Project") {
-      return "Project information, Coming soon...";
-    }
-
-    if (message === "Tech stack") {
-      return "Tech stack information, Coming soon...";
-    }
-
-    // Handle gen ai response here
-    return `She'd take the world off my shoulders
+/** Default response for unrecognized inputs */
+const DEFAULT_RESPONSE = `She'd take the world off my shoulders
 If it was ever hard to move
 She'd turn the rain to a rainbow
 When I was living in the blue
@@ -33,9 +20,26 @@ Do I still wish that it was you?
 Perfect don't mean that it's workin'
 So what can I do? (Ooh)
 `;
-  } catch (err) {
-    console.log(err);
-    return "Sorry I can't answer now 😢";
+
+/** Mapping of topics to their responses */
+const TOPIC_RESPONSES: Record<string, BotResponse> = {
+  "About me": ABOUT_ME_ANSWER,
+  Experience: [...EXPERIENCE_LIST],
+  Contact: [...CONTACT_LIST],
+  Project: "Project information, Coming soon...",
+  "Tech stack": "Tech stack information, Coming soon...",
+};
+
+/**
+ * Handles bot responses based on user message
+ * @param message - User's input message
+ * @returns Bot response as single string or array of strings
+ */
+const handleBotAnswer = (message: string): BotResponse => {
+  try {
+    return TOPIC_RESPONSES[message] ?? DEFAULT_RESPONSE;
+  } catch {
+    return ERROR_MESSAGE;
   }
 };
 

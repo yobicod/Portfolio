@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import {
   Chip,
@@ -10,153 +10,165 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { QUICK_REPLY } from "@/const/quickReply";
+import { QUICK_REPLY } from "@/constants/quickReply";
 import { TypeAnimation } from "react-type-animation";
 import { botService } from "@/services/bot.service";
 import { motion } from "framer-motion";
-import { GREETING_MESSAGE, TYPING_ON } from "@/const/answer";
+import { GREETING_MESSAGE, TYPING_ON } from "@/constants/answer";
 import { useTopic } from "@/context/TopicContext";
+import type { Message } from "@/types/chat.types";
 
-type Message = {
-  role: "user" | "bot";
-  text: string;
-};
+/** Typing animation speed in ms (lower = faster) */
+const TYPING_SPEED_MS = 30;
 
-const Chatbox = () => {
+/** Initial message shown when chat loads */
+const INITIAL_MESSAGES: Message[] = [{ role: "bot", text: GREETING_MESSAGE }];
+
+const Chatbox = memo(function Chatbox() {
   const { setTopic, setIsTyping } = useTopic();
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "bot", text: GREETING_MESSAGE },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState("");
   const [isDisableInput, setIsDisableInput] = useState(false);
   const [isClickQuickReply, setIsClickQuickReply] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const typingAudioRef = useRef<HTMLAudioElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingAudioRef = useRef<HTMLAudioElement>(null);
 
-  const playTypingSound = () => {
+  const playTypingSound = useCallback(() => {
     if (!typingAudioRef.current) {
       typingAudioRef.current = new Audio("/typing_loop.mp3");
       typingAudioRef.current.loop = true;
     }
     typingAudioRef.current.currentTime = 0;
-    typingAudioRef.current.play().catch(() => {});
-  };
+    typingAudioRef.current.play().catch(() => {
+      // Autoplay blocked - silent fail
+    });
+  }, []);
 
-  const stopTypingSound = () => {
+  const stopTypingSound = useCallback(() => {
     if (typingAudioRef.current) {
       typingAudioRef.current.pause();
       typingAudioRef.current.currentTime = 0;
     }
-  };
+  }, []);
 
-  const appendBotText = (text: string) => {
-    let index = 0;
-    // const speed = 30 + Math.random() * 70;
-    const speed = 30; // lower is faster
-
-    setMessages((prev) => {
-      const last = prev.at(-1);
-      if (!last || last.role !== "bot") {
-        return [...prev, { role: "bot", text: "" }];
-      }
-      return prev;
-    });
-
-    const interval = setInterval(() => {
-      const char = text[index];
-      if (!char) {
-        clearInterval(interval);
-        stopTyping();
-        return;
-      }
-
-      setMessages((prev) => {
-        const last = prev.at(-1);
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          ...last!,
-          text: last!.text + char,
-        };
-        return updated;
-      });
-
-      index++;
-    }, speed);
-  };
-
-  const stopTyping = () => {
+  const stopTyping = useCallback(() => {
     setIsDisableInput(false);
     setIsTyping(false);
     stopTypingSound();
-  };
+  }, [setIsTyping, stopTypingSound]);
 
-  const processBotReply = (answer: string | string[]) => {
-    if (Array.isArray(answer)) {
-      answer.forEach((item, idx) => {
-        setTimeout(() => {
-          setMessages((prev) => [...prev, { role: "bot", text: item }]);
-          if (idx === answer.length - 1) stopTyping();
-        }, idx * 1000);
+  const appendBotText = useCallback(
+    (text: string) => {
+      let index = 0;
+
+      setMessages((prev) => {
+        const last = prev.at(-1);
+        if (!last || last.role !== "bot") {
+          return [...prev, { role: "bot", text: "" }];
+        }
+        return prev;
       });
-    } else {
-      appendBotText(answer);
-    }
-  };
 
-  const sendMessage = (value: string) => {
-    if (!value.trim()) return;
+      const interval = setInterval(() => {
+        const char = text[index];
+        if (!char) {
+          clearInterval(interval);
+          stopTyping();
+          return;
+        }
 
-    setMessages((prev) => [...prev, { role: "user", text: value }]);
-    setInput("");
-    setIsDisableInput(true);
-    setIsTyping(true);
-    playTypingSound();
+        setMessages((prev) => {
+          const last = prev.at(-1);
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...last!,
+            text: last!.text + char,
+          };
+          return updated;
+        });
 
-    const answer = botService.answer(value);
+        index++;
+      }, TYPING_SPEED_MS);
+    },
+    [stopTyping],
+  );
 
-    setTimeout(() => {
-      processBotReply(answer);
-    }, 500);
-  };
+  const processBotReply = useCallback(
+    (answer: string | string[]) => {
+      if (Array.isArray(answer)) {
+        answer.forEach((item, idx) => {
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { role: "bot", text: item }]);
+            if (idx === answer.length - 1) stopTyping();
+          }, idx * 1000);
+        });
+      } else {
+        appendBotText(answer);
+      }
+    },
+    [appendBotText, stopTyping],
+  );
 
-  const handleSend = () => {
+  const sendMessage = useCallback(
+    (value: string) => {
+      if (!value.trim()) return;
+
+      setMessages((prev) => [...prev, { role: "user", text: value }]);
+      setInput("");
+      setIsDisableInput(true);
+      setIsTyping(true);
+      playTypingSound();
+
+      const answer = botService.answer(value);
+
+      setTimeout(() => {
+        processBotReply(answer);
+      }, 500);
+    },
+    [playTypingSound, processBotReply, setIsTyping],
+  );
+
+  const handleSend = useCallback(() => {
     sendMessage(input);
-  };
+  }, [input, sendMessage]);
 
-  const handleQuickReply = (label: string) => {
-    setInput(label);
-    setTopic(label);
-    setIsClickQuickReply(true);
-  };
+  const handleQuickReply = useCallback(
+    (label: string) => {
+      setInput(label);
+      setTopic(label);
+      setIsClickQuickReply(true);
+    },
+    [setTopic],
+  );
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     if (!isDisableInput) {
-      setMessages([{ role: "bot", text: GREETING_MESSAGE }]);
+      setMessages(INITIAL_MESSAGES);
     }
-  };
+  }, [isDisableInput]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
   useEffect(() => {
     if (input.trim()) {
       const isWhitelisted = QUICK_REPLY.some(
-        (chip) => chip.label.trim().toLowerCase() === input.trim().toLowerCase()
+        (chip) =>
+          chip.label.trim().toLowerCase() === input.trim().toLowerCase(),
       );
       if (isWhitelisted && isClickQuickReply) {
         sendMessage(input);
         setIsClickQuickReply(false);
       }
     }
-  }, [input, isClickQuickReply]);
+  }, [input, isClickQuickReply, sendMessage]);
 
   if (!mounted) return null;
 
@@ -273,6 +285,6 @@ const Chatbox = () => {
       </Paper>
     </section>
   );
-};
+});
 
 export default Chatbox;
