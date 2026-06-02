@@ -1,39 +1,44 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import SendIcon from "@mui/icons-material/Send";
-import {
-  Chip,
-  Stack,
-  TextField,
-  Paper,
-  Button,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { Chip, TextField, Paper, Button } from "@mui/material";
 import { QUICK_REPLY } from "@/constants/quickReply";
-import { TypeAnimation } from "react-type-animation";
 import { botService } from "@/services/bot.service";
 import { motion } from "framer-motion";
-import { GREETING_MESSAGE, TYPING_ON } from "@/constants/answer";
+import { GREETING_MESSAGE } from "@/constants/answer";
 import { useTopic } from "@/context/TopicContext";
-import type { Message } from "@/types/chat.types";
+import type { RichMessage, RichBotResponse } from "@/types/chat.types";
+import { RichBubble } from "@/components/RichBubble";
+import Celebrate from "@/components/Celebrate";
+import { fadeOutSound } from "@/utils/utils";
 
 /** Typing animation speed in ms (lower = faster) */
 const TYPING_SPEED_MS = 30;
 
 /** Initial message shown when chat loads */
-const INITIAL_MESSAGES: Message[] = [{ role: "bot", text: GREETING_MESSAGE }];
+const INITIAL_MESSAGES: RichMessage[] = [
+  { role: "bot", type: "text", text: GREETING_MESSAGE },
+];
 
 const Chatbox = memo(function Chatbox() {
   const { setTopic, setIsTyping } = useTopic();
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<RichMessage[]>(INITIAL_MESSAGES);
   const [mounted, setMounted] = useState(false);
   const [input, setInput] = useState("");
   const [isDisableInput, setIsDisableInput] = useState(false);
   const [isClickQuickReply, setIsClickQuickReply] = useState(false);
+  const [isCelebrate, setIsCelebrate] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingAudioRef = useRef<HTMLAudioElement>(null);
+
+  const triggerCelebrate = useCallback(() => {
+    setIsCelebrate(true);
+    const lofiAudio = new Audio("/everyone_celebrate_lofi.mp3");
+    lofiAudio.currentTime = 0;
+    lofiAudio.play();
+    fadeOutSound(lofiAudio);
+  }, []);
 
   const playTypingSound = useCallback(() => {
     if (!typingAudioRef.current) {
@@ -59,16 +64,23 @@ const Chatbox = memo(function Chatbox() {
     stopTypingSound();
   }, [setIsTyping, stopTypingSound]);
 
+  /** Remove the pending typing bubble before inserting a real response */
+  const removeTypingBubble = useCallback(() => {
+    setMessages((prev) => {
+      const last = prev.at(-1);
+      return last?.type === "typing" ? prev.slice(0, -1) : prev;
+    });
+  }, []);
+
   const appendBotText = useCallback(
     (text: string) => {
       let index = 0;
 
+      // Replace typing bubble with an empty text message in one update
       setMessages((prev) => {
-        const last = prev.at(-1);
-        if (!last || last.role !== "bot") {
-          return [...prev, { role: "bot", text: "" }];
-        }
-        return prev;
+        const filtered =
+          prev.at(-1)?.type === "typing" ? prev.slice(0, -1) : prev;
+        return [...filtered, { role: "bot", type: "text" as const, text: "" }];
       });
 
       const interval = setInterval(() => {
@@ -80,12 +92,11 @@ const Chatbox = memo(function Chatbox() {
         }
 
         setMessages((prev) => {
-          const last = prev.at(-1);
           const updated = [...prev];
-          updated[updated.length - 1] = {
-            ...last!,
-            text: last!.text + char,
-          };
+          const last = updated[updated.length - 1];
+          if (last && last.type === "text") {
+            updated[updated.length - 1] = { ...last, text: last.text + char };
+          }
           return updated;
         });
 
@@ -96,11 +107,38 @@ const Chatbox = memo(function Chatbox() {
   );
 
   const processBotReply = useCallback(
-    (answer: string | string[]) => {
+    (answer: RichBotResponse) => {
+      // Rich structured message
+      if (typeof answer !== "string" && !Array.isArray(answer)) {
+        // Celebrate easter egg
+        if (answer.type === "celebrate") {
+          removeTypingBubble();
+          triggerCelebrate();
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "bot",
+              type: "text" as const,
+              text: "Woooo! Here's to more great things ahead!",
+            },
+          ]);
+          stopTyping();
+          return;
+        }
+        removeTypingBubble();
+        setMessages((prev) => [...prev, answer]);
+        stopTyping();
+        return;
+      }
+
       if (Array.isArray(answer)) {
+        removeTypingBubble();
         answer.forEach((item, idx) => {
           setTimeout(() => {
-            setMessages((prev) => [...prev, { role: "bot", text: item }]);
+            setMessages((prev) => [
+              ...prev,
+              { role: "bot", type: "text" as const, text: item },
+            ]);
             if (idx === answer.length - 1) stopTyping();
           }, idx * 1000);
         });
@@ -108,14 +146,18 @@ const Chatbox = memo(function Chatbox() {
         appendBotText(answer);
       }
     },
-    [appendBotText, stopTyping],
+    [appendBotText, removeTypingBubble, stopTyping, triggerCelebrate],
   );
 
   const sendMessage = useCallback(
     (value: string) => {
       if (!value.trim()) return;
 
-      setMessages((prev) => [...prev, { role: "user", text: value }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", type: "text" as const, text: value },
+        { role: "bot", type: "typing" as const },
+      ]);
       setInput("");
       setIsDisableInput(true);
       setIsTyping(true);
@@ -143,9 +185,10 @@ const Chatbox = memo(function Chatbox() {
     [setTopic],
   );
 
-  const handleRefresh = useCallback(() => {
+  const handleNewChat = useCallback(() => {
     if (!isDisableInput) {
       setMessages(INITIAL_MESSAGES);
+      setIsCelebrate(false);
     }
   }, [isDisableInput]);
 
@@ -173,59 +216,49 @@ const Chatbox = memo(function Chatbox() {
   if (!mounted) return null;
 
   return (
-    <section className="w-full max-w-xl mx-auto mt-8">
-      {/* Quick Replies */}
-      <Stack
-        direction="row"
-        spacing={1}
-        useFlexGap
-        flexWrap="wrap"
-        justifyContent="center"
-        className="mb-4"
-      >
-        {QUICK_REPLY.map((chip, index) => (
-          <motion.div
-            key={index}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Chip
-              label={chip.label}
-              color={chip.color}
-              clickable
-              disabled={isDisableInput}
-              onClick={() => handleQuickReply(chip.label)}
-              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-            />
-          </motion.div>
-        ))}
-      </Stack>
+    <section className="flex flex-col flex-1 min-h-0 w-full">
+      {isCelebrate && <Celebrate />}
 
-      {/* Chat Container */}
-      <Paper className="rounded-xl p-4 bg-red-50">
-        <div className="w-full flex justify-end mb-4">
-          <Tooltip title="Refresh Conversation">
-            <IconButton onClick={handleRefresh}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582M20 20v-5h-.581m0 0A7.963 7.963 0 0112 20a7.963 7.963 0 01-7.419-5H4m16-6a7.963 7.963 0 00-7.419-5A7.963 7.963 0 004 9h.581"
-                />
-              </svg>
-            </IconButton>
-          </Tooltip>
+      <Paper
+        className="ai-panel flex flex-col flex-1 min-h-0 p-4 sm:p-5"
+        sx={{
+          backgroundImage:
+            "linear-gradient(160deg, rgba(14, 28, 49, 0.82), rgba(8, 15, 28, 0.95))",
+        }}
+      >
+        {/* Chat header */}
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[rgba(124,211,255,0.14)] shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[var(--color-brand)] shadow-[0_0_6px_var(--color-brand)]" />
+            <span className="text-sm font-semibold text-[var(--foreground)] tracking-wide">
+              Visal&apos;s Bot
+            </span>
+          </div>
+          <button
+            onClick={handleNewChat}
+            disabled={isDisableInput}
+            className="flex items-center gap-1.5 rounded-lg border border-[rgba(147,167,202,0.3)] bg-[rgba(6,12,24,0.65)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582M20 20v-5h-.581m0 0A7.963 7.963 0 0112 20a7.963 7.963 0 01-7.419-5H4m16-6a7.963 7.963 0 00-7.419-5A7.963 7.963 0 004 9h.581"
+              />
+            </svg>
+            New chat
+          </button>
         </div>
 
-        {/* Chat Scroll Area */}
-        <div className="h-64 overflow-y-auto space-y-3 pr-2">
+        {/* Chat scroll area — flex-1 fills all available space */}
+        <div className="flex-1 min-h-[200px] overflow-y-auto space-y-3 pr-1">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -233,18 +266,66 @@ const Chatbox = memo(function Chatbox() {
                 msg.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              <div
-                className={`rounded-2xl px-4 py-2 max-w-[75%] text-sm ${
-                  msg.role === "user"
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {msg.text}
-              </div>
+              {msg.type === "typing" ? (
+                <div className="rounded-2xl px-4 py-3 border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)]">
+                  <div className="flex gap-1 items-center h-4">
+                    <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
+                    <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
+                    <span className="dot-pulse" style={{ animationDelay: "320ms" }} />
+                  </div>
+                </div>
+              ) : msg.type !== "text" ? (
+                <RichBubble message={msg} />
+              ) : (
+                <div
+                  className={`rounded-2xl px-4 py-2 max-w-[85%] sm:max-w-[75%] text-sm leading-relaxed whitespace-pre-wrap ${
+                    msg.role === "user"
+                      ? "bg-[linear-gradient(120deg,#1a8d9c,#0f4f73)] text-[#f2fbff] shadow-[0_8px_22px_rgba(6,18,40,0.42)]"
+                      : "border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              )}
             </div>
           ))}
           <div ref={messagesEndRef} />
+        </div>
+
+        {/* Quick replies — pinned above input, horizontal scroll on mobile */}
+        <div className="mt-3 shrink-0 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
+          {QUICK_REPLY.map((chip, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.9 }}
+              className="shrink-0"
+            >
+              <Chip
+                label={chip.label}
+                variant="outlined"
+                clickable
+                disabled={isDisableInput}
+                onClick={() => handleQuickReply(chip.label)}
+                sx={{
+                  fontSize: "0.72rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "var(--color-brand)",
+                  borderColor: "rgba(70, 233, 255, 0.42)",
+                  backgroundColor: "rgba(8, 16, 31, 0.55)",
+                  "&:hover": {
+                    borderColor: "var(--color-brand)",
+                    backgroundColor: "rgba(17, 207, 231, 0.18)",
+                  },
+                  "&.Mui-disabled": {
+                    color: "rgba(147, 167, 202, 0.58)",
+                    borderColor: "rgba(147, 167, 202, 0.25)",
+                  },
+                }}
+              />
+            </motion.div>
+          ))}
         </div>
 
         {/* Input */}
@@ -253,31 +334,58 @@ const Chatbox = memo(function Chatbox() {
             e.preventDefault();
             handleSend();
           }}
-          className="mt-4 flex items-center gap-4 justify-center"
+          className="mt-3 shrink-0 flex gap-2 sm:gap-3"
         >
-          {isDisableInput ? (
-            <div className="w-full max-w-md bg-gray-100 rounded-md px-3 py-2 text-sm text-gray-600 flex items-center">
-              <TypeAnimation
-                sequence={TYPING_ON}
-                speed={50}
-                repeat={Infinity}
-              />
-            </div>
-          ) : (
-            <TextField
-              size="small"
-              placeholder="Type something..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="bg-gray-100 rounded-md w-full max-w-md"
-            />
-          )}
+          <TextField
+            size="small"
+            placeholder="Type something..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isDisableInput}
+            className="flex-1"
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "0.85rem",
+                backgroundColor: "rgba(10, 20, 36, 0.86)",
+                color: "var(--color-foreground)",
+                "& fieldset": {
+                  borderColor: "rgba(147, 167, 202, 0.32)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(70, 233, 255, 0.52)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "var(--color-brand)",
+                },
+                "&.Mui-disabled": { opacity: 0.5 },
+              },
+              "& .MuiInputBase-input::placeholder": {
+                color: "rgba(147, 167, 202, 0.88)",
+                opacity: 1,
+              },
+            }}
+          />
           <Button
             variant="contained"
             endIcon={<SendIcon />}
-            className="py-2 px-6 normal-case"
             onClick={handleSend}
             disabled={isDisableInput}
+            sx={{
+              minHeight: "40px",
+              minWidth: "100px",
+              borderRadius: "0.85rem",
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: "#062031",
+              backgroundImage:
+                "linear-gradient(120deg, var(--color-brand), var(--color-signal))",
+              boxShadow: "var(--shadow-glow)",
+              "&:hover": {
+                backgroundImage:
+                  "linear-gradient(120deg, var(--color-brand-strong), var(--color-signal))",
+              },
+            }}
           >
             Send
           </Button>

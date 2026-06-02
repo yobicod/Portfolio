@@ -1,11 +1,16 @@
 import {
   ABOUT_ME_ANSWER,
-  CONTACT_LIST,
-  EXPERIENCE_LIST,
+  CONTACT_ITEMS,
+  EXPERIENCE_TIMELINE,
+  TECH_STACK_CATEGORIES,
 } from "@/constants/answer";
-
-/** Response type that can be a single message or array of messages */
-export type BotResponse = string | string[];
+import type {
+  RichBotResponse,
+  TimelineMessage,
+  ContactMessage,
+  TechStackMessage,
+  CelebrateMessage,
+} from "@/types/chat.types";
 
 /** Error message shown when bot fails to respond */
 const ERROR_MESSAGE = "Sorry I can't answer now 😢";
@@ -21,22 +26,49 @@ Perfect don't mean that it's workin'
 So what can I do? (Ooh)
 `;
 
+const EXPERIENCE_RESPONSE: TimelineMessage = {
+  role: "bot",
+  type: "timeline",
+  entries: EXPERIENCE_TIMELINE,
+};
+
+const CONTACT_RESPONSE: ContactMessage = {
+  role: "bot",
+  type: "contact",
+  entries: CONTACT_ITEMS,
+};
+
+const TECH_STACK_RESPONSE: TechStackMessage = {
+  role: "bot",
+  type: "tech-stack",
+  entries: TECH_STACK_CATEGORIES,
+};
+
+const CELEBRATE_RESPONSE: CelebrateMessage = {
+  role: "bot",
+  type: "celebrate",
+};
+
 /** Mapping of topics to their responses */
-const TOPIC_RESPONSES: Record<string, BotResponse> = {
+const TOPIC_RESPONSES: Record<string, RichBotResponse> = {
   "About me": ABOUT_ME_ANSWER,
-  Experience: [...EXPERIENCE_LIST],
-  Contact: [...CONTACT_LIST],
+  Experience: EXPERIENCE_RESPONSE,
+  Contact: CONTACT_RESPONSE,
   Project: "Project information, Coming soon...",
-  "Tech stack": "Tech stack information, Coming soon...",
+  "Tech stack": TECH_STACK_RESPONSE,
 };
 
 /**
  * Handles bot responses based on user message
  * @param message - User's input message
- * @returns Bot response as single string or array of strings
+ * @returns Bot response (rich structured or plain string)
  */
-const handleBotAnswer = (message: string): BotResponse => {
+const handleBotAnswer = (message: string): RichBotResponse => {
   try {
+    const lower = message.toLowerCase();
+    if (lower.includes("celebrate") || lower.includes("congrats")) {
+      return CELEBRATE_RESPONSE;
+    }
     return TOPIC_RESPONSES[message] ?? DEFAULT_RESPONSE;
   } catch {
     return ERROR_MESSAGE;

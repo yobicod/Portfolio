@@ -1,26 +1,154 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #060b14;
+  --background-elevated: #101a2b;
+  --surface: rgba(12, 24, 44, 0.72);
+  --surface-strong: rgba(8, 16, 31, 0.9);
+  --surface-border: rgba(124, 211, 255, 0.22);
+  --foreground: #ecf3ff;
+  --foreground-muted: #93a7ca;
+  --brand: #46e9ff;
+  --brand-strong: #11cfe7;
+  --signal: #b7ff5a;
+  --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.4);
+  --shadow-glow:
+    0 0 0 1px rgba(70, 233, 255, 0.25), 0 20px 70px rgba(17, 207, 231, 0.2);
+  --radius-panel: 1.5rem;
+  --motion-fast: 180ms;
+  --motion-base: 280ms;
+  --motion-slow: 700ms;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-elevated: var(--background-elevated);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-surface-border: var(--surface-border);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-signal: var(--signal);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: clip;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-space-grotesk), "Segoe UI", sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(
+      circle at 18% 20%,
+      rgba(70, 233, 255, 0.18),
+      transparent 36%
+    ),
+    radial-gradient(
+      circle at 82% 12%,
+      rgba(183, 255, 90, 0.12),
+      transparent 34%
+    ),
+    linear-gradient(150deg, #04070f 0%, #060b14 38%, #0b1322 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(137, 182, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(137, 182, 255, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black, transparent 84%);
+}
+
+a {
+  color: inherit;
+}
+
+.ai-panel {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-panel);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-soft);
+}
+
+.ai-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(70, 233, 255, 0.45);
+  color: var(--brand);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:
+    transform var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.ai-link:hover {
+  color: #031723;
+  background: var(--brand);
+  border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.ai-input {
+  background: rgba(10, 20, 36, 0.86);
+  border: 1px solid rgba(147, 167, 202, 0.32);
+  color: var(--foreground);
+}
+
+.ai-input::placeholder {
+  color: rgba(147, 167, 202, 0.9);
+}
+
+/* Typing indicator dots */
+@keyframes dot-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+.dot-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --shadow-soft: 0 14px 30px rgba(0, 0, 0, 0.28);
+  }
 }
