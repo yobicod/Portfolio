@@ -9,17 +9,16 @@ export default function Home() {
     <TopicProvider>
       <div className="relative min-h-screen w-full overflow-x-hidden">
         <CursorBox />
-        {/* Mobile: flex-col stack. Desktop (md+): two-column grid */}
-        <div className="relative z-20 mx-auto flex flex-col md:grid md:grid-cols-[38%_1fr] md:gap-x-6 min-h-screen max-w-6xl px-4 sm:px-6 lg:px-10">
-          {/* Left column — sticky on desktop */}
-          <div className="md:sticky md:top-0 md:h-screen md:flex md:items-center py-4 md:py-0">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-24 border-b border-white/[0.03] bg-[linear-gradient(180deg,rgba(255,255,255,0.07),transparent)]" />
+
+        <main className="relative z-20 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-3 sm:px-6 md:grid md:grid-cols-[minmax(300px,0.78fr)_minmax(0,1.22fr)] md:gap-x-8 md:py-0 lg:px-10">
+          <div className="md:sticky md:top-0 md:flex md:h-screen md:items-start md:py-6">
             <Hero />
           </div>
-          {/* Right column — chat fills viewport height */}
-          <div className="flex flex-col flex-1 md:h-screen md:py-6 pb-6">
+          <div className="flex min-h-0 flex-1 flex-col pb-4 md:h-screen md:py-8">
             <Chatbox />
           </div>
-        </div>
+        </main>
       </div>
     </TopicProvider>
   );

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import SendIcon from "@mui/icons-material/Send";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { Chip, TextField, Paper, Button } from "@mui/material";
 import { QUICK_REPLY } from "@/constants/quickReply";
 import { botService } from "@/services/bot.service";
@@ -216,49 +217,41 @@ const Chatbox = memo(function Chatbox() {
   if (!mounted) return null;
 
   return (
-    <section className="flex flex-col flex-1 min-h-0 w-full">
+    <section className="flex min-h-0 w-full flex-1 flex-col">
       {isCelebrate && <Celebrate />}
 
       <Paper
-        className="ai-panel flex flex-col flex-1 min-h-0 p-4 sm:p-5"
+        className="ai-panel flex min-h-0 flex-1 flex-col p-3 sm:p-5"
         sx={{
           backgroundImage:
-            "linear-gradient(160deg, rgba(14, 28, 49, 0.82), rgba(8, 15, 28, 0.95))",
+            "linear-gradient(160deg, rgba(16, 29, 48, 0.84), rgba(7, 13, 24, 0.97))",
         }}
       >
-        {/* Chat header */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[rgba(124,211,255,0.14)] shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[var(--color-brand)] shadow-[0_0_6px_var(--color-brand)]" />
-            <span className="text-sm font-semibold text-[var(--foreground)] tracking-wide">
-              Visal&apos;s Bot
+        <div className="mb-4 flex shrink-0 items-center justify-between border-b border-white/[0.07] pb-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[rgba(70,233,255,0.28)] bg-[rgba(70,233,255,0.09)] text-sm font-semibold text-[var(--brand)] shadow-[0_0_24px_rgba(70,233,255,0.14)]">
+              VS
             </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-wide text-[var(--foreground)]">
+                Visal&apos;s Portfolio Bot
+              </p>
+              <p className="text-[0.68rem] uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+                Interactive profile
+              </p>
+            </div>
           </div>
           <button
             onClick={handleNewChat}
             disabled={isDisableInput}
-            className="flex items-center gap-1.5 rounded-lg border border-[rgba(147,167,202,0.3)] bg-[rgba(6,12,24,0.65)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.09] bg-white/[0.045] px-3 text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:border-[rgba(70,233,255,0.5)] hover:text-[var(--color-brand)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582M20 20v-5h-.581m0 0A7.963 7.963 0 0112 20a7.963 7.963 0 01-7.419-5H4m16-6a7.963 7.963 0 00-7.419-5A7.963 7.963 0 004 9h.581"
-              />
-            </svg>
+            <RefreshIcon sx={{ fontSize: 16 }} />
             New chat
           </button>
         </div>
 
-        {/* Chat scroll area — flex-1 fills all available space */}
-        <div className="flex-1 min-h-[200px] overflow-y-auto space-y-3 pr-1">
+        <div className="chat-scroll min-h-[240px] flex-1 space-y-3 overflow-y-auto pr-1 sm:pr-2">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -267,7 +260,7 @@ const Chatbox = memo(function Chatbox() {
               }`}
             >
               {msg.type === "typing" ? (
-                <div className="rounded-2xl px-4 py-3 border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)]">
+                <div className="rounded-2xl border border-white/[0.08] bg-[rgba(8,16,31,0.86)] px-4 py-3 shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
                   <div className="flex gap-1 items-center h-4">
                     <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
                     <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
@@ -278,10 +271,10 @@ const Chatbox = memo(function Chatbox() {
                 <RichBubble message={msg} />
               ) : (
                 <div
-                  className={`rounded-2xl px-4 py-2 max-w-[85%] sm:max-w-[75%] text-sm leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:max-w-[76%] ${
                     msg.role === "user"
-                      ? "bg-[linear-gradient(120deg,#1a8d9c,#0f4f73)] text-[#f2fbff] shadow-[0_8px_22px_rgba(6,18,40,0.42)]"
-                      : "border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]"
+                      ? "bg-[linear-gradient(135deg,#20b7c7,#256a91)] text-[#f7fdff]"
+                      : "border border-white/[0.08] bg-[rgba(8,16,31,0.86)] text-[var(--foreground)]"
                   }`}
                 >
                   {msg.text}
@@ -292,8 +285,7 @@ const Chatbox = memo(function Chatbox() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick replies — pinned above input, horizontal scroll on mobile */}
-        <div className="mt-3 shrink-0 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
+        <div className="chat-scroll mt-3 flex shrink-0 gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
           {QUICK_REPLY.map((chip, index) => (
             <motion.div
               key={index}
@@ -312,8 +304,9 @@ const Chatbox = memo(function Chatbox() {
                   textTransform: "uppercase",
                   letterSpacing: "0.08em",
                   color: "var(--color-brand)",
-                  borderColor: "rgba(70, 233, 255, 0.42)",
-                  backgroundColor: "rgba(8, 16, 31, 0.55)",
+                  borderColor: "rgba(70, 233, 255, 0.34)",
+                  backgroundColor: "rgba(255, 255, 255, 0.045)",
+                  backdropFilter: "blur(14px)",
                   "&:hover": {
                     borderColor: "var(--color-brand)",
                     backgroundColor: "rgba(17, 207, 231, 0.18)",
@@ -328,13 +321,12 @@ const Chatbox = memo(function Chatbox() {
           ))}
         </div>
 
-        {/* Input */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="mt-3 shrink-0 flex gap-2 sm:gap-3"
+          className="mt-3 flex shrink-0 gap-2 sm:gap-3"
         >
           <TextField
             size="small"
@@ -346,10 +338,10 @@ const Chatbox = memo(function Chatbox() {
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "0.85rem",
-                backgroundColor: "rgba(10, 20, 36, 0.86)",
+                backgroundColor: "rgba(255, 255, 255, 0.055)",
                 color: "var(--color-foreground)",
                 "& fieldset": {
-                  borderColor: "rgba(147, 167, 202, 0.32)",
+                  borderColor: "rgba(255, 255, 255, 0.1)",
                 },
                 "&:hover fieldset": {
                   borderColor: "rgba(70, 233, 255, 0.52)",
@@ -372,7 +364,7 @@ const Chatbox = memo(function Chatbox() {
             disabled={isDisableInput}
             sx={{
               minHeight: "40px",
-              minWidth: "100px",
+              minWidth: { xs: "48px", sm: "104px" },
               borderRadius: "0.85rem",
               fontWeight: 600,
               letterSpacing: "0.06em",
@@ -387,7 +379,7 @@ const Chatbox = memo(function Chatbox() {
               },
             }}
           >
-            Send
+            <span className="hidden sm:inline">Send</span>
           </Button>
         </form>
       </Paper>

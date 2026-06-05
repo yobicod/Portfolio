@@ -1,19 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060b14;
-  --background-elevated: #101a2b;
-  --surface: rgba(12, 24, 44, 0.72);
-  --surface-strong: rgba(8, 16, 31, 0.9);
-  --surface-border: rgba(124, 211, 255, 0.22);
-  --foreground: #ecf3ff;
-  --foreground-muted: #93a7ca;
+  --background: #070910;
+  --background-elevated: #121a28;
+  --surface: rgba(13, 21, 34, 0.74);
+  --surface-strong: rgba(8, 14, 25, 0.92);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --foreground: #f4f7fb;
+  --foreground-muted: #9da9bd;
   --brand: #46e9ff;
   --brand-strong: #11cfe7;
-  --signal: #b7ff5a;
-  --shadow-soft: 0 24px 60px rgba(0, 0, 0, 0.4);
+  --signal: #c4ff68;
+  --warm: #ffb84d;
+  --shadow-soft: 0 28px 70px rgba(0, 0, 0, 0.46);
   --shadow-glow:
-    0 0 0 1px rgba(70, 233, 255, 0.25), 0 20px 70px rgba(17, 207, 231, 0.2);
+    0 0 0 1px rgba(70, 233, 255, 0.2), 0 22px 70px rgba(17, 207, 231, 0.18);
   --radius-panel: 1.5rem;
   --motion-fast: 180ms;
   --motion-base: 280ms;
@@ -31,6 +32,7 @@
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
   --color-signal: var(--signal);
+  --color-warm: var(--warm);
   --font-sans: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 }
@@ -51,17 +53,10 @@ body {
   font-family: var(--font-space-grotesk), "Segoe UI", sans-serif;
   min-height: 100vh;
   background-image:
-    radial-gradient(
-      circle at 18% 20%,
-      rgba(70, 233, 255, 0.18),
-      transparent 36%
-    ),
-    radial-gradient(
-      circle at 82% 12%,
-      rgba(183, 255, 90, 0.12),
-      transparent 34%
-    ),
-    linear-gradient(150deg, #04070f 0%, #060b14 38%, #0b1322 100%);
+    linear-gradient(115deg, rgba(70, 233, 255, 0.13), transparent 30%),
+    linear-gradient(245deg, rgba(255, 184, 77, 0.11), transparent 28%),
+    linear-gradient(180deg, rgba(196, 255, 104, 0.07), transparent 44%),
+    linear-gradient(150deg, #05060b 0%, #080b13 42%, #101827 100%);
 }
 
 body::before {
@@ -74,7 +69,7 @@ body::before {
     linear-gradient(rgba(137, 182, 255, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(137, 182, 255, 0.06) 1px, transparent 1px);
   background-size: 40px 40px;
-  mask-image: radial-gradient(circle at center, black, transparent 84%);
+  mask-image: linear-gradient(180deg, black, transparent 88%);
 }
 
 a {
@@ -85,7 +80,7 @@ a {
   background: var(--surface);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-panel);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(22px);
   box-shadow: var(--shadow-soft);
 }
 
@@ -93,13 +88,15 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.38rem;
   padding: 0.38rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid rgba(70, 233, 255, 0.45);
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
   color: var(--brand);
   font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   transition:
     transform var(--motion-fast) ease,
     background-color var(--motion-fast) ease,
@@ -108,9 +105,9 @@ a {
 }
 
 .ai-link:hover {
-  color: #031723;
-  background: var(--brand);
-  border-color: var(--brand);
+  color: #04151f;
+  background: linear-gradient(135deg, var(--brand), var(--signal));
+  border-color: rgba(255, 255, 255, 0.16);
   transform: translateY(-1px);
 }
 
@@ -145,6 +142,25 @@ a {
   border-radius: 50%;
   background: var(--brand);
   animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+.chat-scroll {
+  scrollbar-color: rgba(70, 233, 255, 0.32) transparent;
+  scrollbar-width: thin;
+}
+
+.chat-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(70, 233, 255, 0.28);
+  border-radius: 999px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 @media (max-width: 640px) {

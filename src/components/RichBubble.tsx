@@ -9,22 +9,22 @@ import type {
 
 function TimelineCard({ entry }: { entry: TimelineEntry }) {
   return (
-    <div className="border-l-2 border-[var(--color-brand)] pl-3 py-1">
-      <span className="inline-block text-xs font-mono bg-[rgba(70,233,255,0.1)] text-[var(--color-brand)] border border-[rgba(70,233,255,0.28)] rounded-full px-2 py-0.5 mb-1.5">
+    <div className="border-l-2 border-[var(--color-brand)] py-1 pl-3">
+      <span className="mb-1.5 inline-block rounded-full border border-[rgba(70,233,255,0.28)] bg-[rgba(70,233,255,0.1)] px-2 py-0.5 font-mono text-xs text-[var(--color-brand)]">
         {entry.dateRange}
       </span>
-      <div className="text-sm font-semibold text-[var(--foreground)] leading-tight">
+      <div className="text-sm font-semibold leading-tight text-[var(--foreground)]">
         {entry.role}
         <span className="text-[var(--foreground-muted)] font-normal">
           {" "}
-          — {entry.company}
+          - {entry.company}
         </span>
       </div>
       <ul className="mt-1.5 space-y-1">
         {entry.bullets.map((bullet, i) => (
           <li
             key={i}
-            className="text-xs text-[var(--foreground-muted)] leading-relaxed flex gap-2"
+            className="flex gap-2 text-xs leading-relaxed text-[var(--foreground-muted)]"
           >
             <span className="text-[var(--color-brand)] mt-0.5 shrink-0">•</span>
             <span>{bullet}</span>
@@ -37,7 +37,7 @@ function TimelineCard({ entry }: { entry: TimelineEntry }) {
 
 function ContactRow({ entry }: { entry: ContactEntry }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+    <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.035] px-3 py-2 text-sm text-[var(--foreground)]">
       <span className="text-base">{entry.icon}</span>
       <span>{entry.value}</span>
     </div>
@@ -58,7 +58,7 @@ function TechStackSection({
     : "bg-[rgba(183,255,90,0.08)] border-[rgba(183,255,90,0.3)] text-[var(--color-signal)]";
 
   return (
-    <div>
+    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-3">
       <p
         className="text-[10px] font-mono font-semibold uppercase tracking-widest mb-1.5"
         style={{ color: accentColor }}
@@ -106,7 +106,7 @@ export function RichBubble({ message }: { message: RichMessage }) {
   }
 
   return (
-    <div className="rounded-2xl px-4 py-3 max-w-[90%] sm:max-w-[80%] border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]">
+    <div className="max-w-[92%] rounded-2xl border border-white/[0.08] bg-[rgba(8,16,31,0.86)] px-4 py-3 text-[var(--foreground)] shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:max-w-[82%]">
       {message.type === "timeline" && (
         <div className="space-y-4">
           {message.entries.map((entry, i) => (
