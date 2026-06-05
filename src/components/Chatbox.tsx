@@ -257,43 +257,8 @@ const Chatbox = memo(function Chatbox() {
           </button>
         </div>
 
-        {/* Chat scroll area — flex-1 fills all available space */}
-        <div className="flex-1 min-h-[200px] overflow-y-auto space-y-3 pr-1">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {msg.type === "typing" ? (
-                <div className="rounded-2xl px-4 py-3 border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)]">
-                  <div className="flex gap-1 items-center h-4">
-                    <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
-                    <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
-                    <span className="dot-pulse" style={{ animationDelay: "320ms" }} />
-                  </div>
-                </div>
-              ) : msg.type !== "text" ? (
-                <RichBubble message={msg} />
-              ) : (
-                <div
-                  className={`rounded-2xl px-4 py-2 max-w-[85%] sm:max-w-[75%] text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === "user"
-                      ? "bg-[linear-gradient(120deg,#1a8d9c,#0f4f73)] text-[#f2fbff] shadow-[0_8px_22px_rgba(6,18,40,0.42)]"
-                      : "border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]"
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Quick replies — pinned above input, horizontal scroll on mobile */}
-        <div className="mt-3 shrink-0 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
+        {/* Quick replies — prioritized actions shown before long chat content */}
+        <div className="mb-3 shrink-0 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
           {QUICK_REPLY.map((chip, index) => (
             <motion.div
               key={index}
@@ -326,6 +291,41 @@ const Chatbox = memo(function Chatbox() {
               />
             </motion.div>
           ))}
+        </div>
+
+        {/* Chat scroll area — follows the prioritized quick actions */}
+        <div className="flex-1 min-h-[200px] overflow-y-auto space-y-3 pr-1">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`flex ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              {msg.type === "typing" ? (
+                <div className="rounded-2xl px-4 py-3 border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)]">
+                  <div className="flex gap-1 items-center h-4">
+                    <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
+                    <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
+                    <span className="dot-pulse" style={{ animationDelay: "320ms" }} />
+                  </div>
+                </div>
+              ) : msg.type !== "text" ? (
+                <RichBubble message={msg} />
+              ) : (
+                <div
+                  className={`rounded-2xl px-4 py-2 max-w-[85%] sm:max-w-[75%] text-sm leading-relaxed whitespace-pre-wrap ${
+                    msg.role === "user"
+                      ? "bg-[linear-gradient(120deg,#1a8d9c,#0f4f73)] text-[#f2fbff] shadow-[0_8px_22px_rgba(6,18,40,0.42)]"
+                      : "border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              )}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
