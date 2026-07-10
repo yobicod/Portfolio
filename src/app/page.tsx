@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProjectChapter from "@/components/ProjectChapter";
+import MagneticLink from "@/components/MagneticLink";
+import MotionReveal from "@/components/MotionReveal";
 import SignaturePortrait from "@/components/SignaturePortrait";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
@@ -120,7 +122,7 @@ function Navigation({ active }: { active: string }) {
   }, [open]);
 
   return (
-    <header className="nav-shell" ref={headerRef}>
+    <header className={active === "hero" ? "nav-shell" : "nav-shell is-scrolled"} ref={headerRef}>
       <a className="brand" href="#hero" aria-label="Visal Suwanarat, home" onClick={() => closeMenu()}>
         <b>V</b><span>VISAL<br />SUWANARAT</span>
       </a>
@@ -176,12 +178,12 @@ export default function Home() {
       </aside>
 
       <section id="hero" className="scene hero-scene is-visible">
-        <div className="hero-copy reveal">
+        <MotionReveal className="hero-copy" y={34}>
           <SceneLabel index="01">FULL-STACK ENGINEER · AI &amp; AUTOMATION</SceneLabel>
           <h1>Software<br /><em>Engineer.</em></h1>
           <p>I build intelligent products, scalable systems, and thoughtful automation with production craftsmanship from interface to infrastructure.</p>
           <div className="hero-actions">
-            <a className="primary-cta" href="#work"><span>Explore selected work</span><Arrow down /></a>
+            <MagneticLink className="primary-cta" href="#work"><span>Explore selected work</span><Arrow down /></MagneticLink>
             <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Résumé <Arrow /></a>
           </div>
           <dl className="hero-facts">
@@ -189,7 +191,7 @@ export default function Home() {
             <div><dt>Craft</dt><dd>Full stack</dd></div>
             <div><dt>Base</dt><dd>Bangkok · TH</dd></div>
           </dl>
-        </div>
+        </MotionReveal>
 
         <SignaturePortrait />
 
@@ -197,11 +199,11 @@ export default function Home() {
       </section>
 
       <section id="approach" className="scene about-scene">
-        <div className="about-heading reveal">
+        <MotionReveal className="about-heading">
           <SceneLabel index="02">THE PRACTICE / FULL SYSTEM VIEW</SceneLabel>
           <h2>Clarity in<br />every <em>layer.</em></h2>
-        </div>
-        <div className="about-copy reveal reveal--late">
+        </MotionReveal>
+        <MotionReveal className="about-copy" delay={0.12}>
           <p className="about-lead">A practical process for turning complexity into calm, useful software—always guided by <em>less, but better.</em></p>
           <ol className="practice-steps">
             <li><span>01</span><div><strong>Frame</strong><p>Define the real problem and the outcome that matters.</p></div></li>
@@ -209,7 +211,7 @@ export default function Home() {
             <li><span>03</span><div><strong>Ship</strong><p>Build the full experience with production discipline.</p></div></li>
             <li><span>04</span><div><strong>Measure</strong><p>Learn from real use and refine what creates value.</p></div></li>
           </ol>
-        </div>
+        </MotionReveal>
       </section>
 
       <section id="stack" className="scene technology-scene">
@@ -217,11 +219,11 @@ export default function Home() {
       </section>
 
       <section id="work" className="scene work-scene">
-        <div className="work-intro reveal">
+        <MotionReveal className="work-intro">
           <SceneLabel index="04">SELECTED SYSTEMS / 2023—2026</SceneLabel>
           <h2>Work with<br /><em>purpose.</em></h2>
           <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
-        </div>
+        </MotionReveal>
         <div className="project-list">
           {projects.map((project, index) => <ProjectChapter project={project} featured={index === 0} key={project.id} />)}
         </div>
@@ -229,12 +231,12 @@ export default function Home() {
       </section>
 
       <section id="experience" className="scene experience-scene">
-        <div className="experience-heading reveal">
+        <MotionReveal className="experience-heading">
           <SceneLabel index="05">EXPERIENCE / MILESTONES</SceneLabel>
           <h2>A path of<br /><em>making.</em></h2>
           <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Download résumé <Arrow down /></a>
-        </div>
-        <div className="timeline reveal reveal--late">
+        </MotionReveal>
+        <MotionReveal className="timeline" delay={0.12}>
           {experience.map(({ date, role, company, description }, index) => (
             <article className="timeline-item" key={`${date}-${role}`}>
               <span className="timeline-number">0{index + 1}</span>
@@ -242,22 +244,22 @@ export default function Home() {
               <div><h3>{role}</h3><span>{company}</span><p>{description}</p></div>
             </article>
           ))}
-        </div>
+        </MotionReveal>
       </section>
 
       <section id="contact" className="scene contact-scene">
-        <div className="contact-copy reveal">
+        <MotionReveal className="contact-copy" y={32}>
           <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
           <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
           <h2>Let&apos;s build<br /><em>something</em> together.</h2>
-          <a className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>Start a conversation</span><Arrow /></a>
+          <MagneticLink className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>Start a conversation</span><Arrow /></MagneticLink>
           <div className="contact-options">
             <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
             <button type="button" onClick={copyEmail}>Copy email</button>
             <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LinkedIn ↗</a>
           </div>
           <p className="copy-status" aria-live="polite">{copyStatus}</p>
-        </div>
+        </MotionReveal>
         <footer>
           <div><span>VISAL SUWANARAT © 2026</span><span>DESIGNED &amp; ENGINEERED WITH INTENT</span></div>
           <nav aria-label="Social links"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GITHUB ↗</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LINKEDIN ↗</a><a href="#hero">BACK TO TOP ↑</a></nav>

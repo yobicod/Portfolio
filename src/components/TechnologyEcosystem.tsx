@@ -2,6 +2,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   technologies,
   technologyCategoryLabels,
@@ -9,9 +10,16 @@ import {
 } from "@/data/technologyStack";
 
 export default function TechnologyEcosystem() {
+  const reducedMotion = useReducedMotion();
   return (
     <div className="technology-stage">
-      <header className="technology-heading">
+      <motion.header
+        className="technology-heading"
+        initial={reducedMotion ? false : { opacity: 0, y: 26 }}
+        whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.35 }}
+        transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div>
           <p className="scene-label"><span>03</span>TECH STACK / TOOLKIT</p>
           <h2>Tools for<br /><em>shipping.</em></h2>
@@ -19,17 +27,21 @@ export default function TechnologyEcosystem() {
         <p className="technology-positioning">
           A focused, production-ready stack for building software across every layer.
         </p>
-      </header>
+      </motion.header>
 
       <div className="ecosystem-map" aria-label="Technology stack">
         {technologyCategoryOrder.map((category, categoryIndex) => {
           const items = technologies.filter((item) => item.category === category);
           return (
-            <section
+            <motion.section
               className="technology-group"
               style={{ "--group-index": categoryIndex } as CSSProperties}
               key={category}
               aria-labelledby={`category-${category}`}
+              initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.54, delay: categoryIndex * 0.06, ease: [0.22, 1, 0.36, 1] }}
             >
               <header>
                 <span>0{categoryIndex + 1}</span>
@@ -47,7 +59,7 @@ export default function TechnologyEcosystem() {
                   </li>
                 ))}
               </ul>
-            </section>
+            </motion.section>
           );
         })}
       </div>
