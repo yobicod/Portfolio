@@ -37,11 +37,14 @@ const Hero = memo(function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className="eyebrow"><span>01</span> ENGINEER / CREATIVE TECHNOLOGIST</p>
+        <p className="eyebrow">
+          <span>01</span> ENGINEER / CREATIVE TECHNOLOGIST
+        </p>
         <h1 id="hero-title">
           I build digital
           <span className="display-accent"> experiences</span>
-          <br />with a pulse.
+          <br />
+          with a pulse.
         </h1>
         <p className="hero__intro">
           I&apos;m Visal, a full-stack engineer crafting intelligent products at
@@ -59,23 +62,36 @@ const Hero = memo(function Hero() {
         </div>
 
         <nav className="social-links" aria-label="Social links">
-          <Link href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub <ArrowIcon /></Link>
-          <Link href={LINKEDIN_URL} target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></Link>
-          <a href="mailto:yobicod.4u@gmail.com">Email <ArrowIcon /></a>
+          <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
+            GitHub <ArrowIcon />
+          </Link>
+          <Link href={LINKEDIN_URL} target="_blank" rel="noreferrer">
+            LinkedIn <ArrowIcon />
+          </Link>
+          <a href="mailto:yobicod.4u@gmail.com">
+            Email <ArrowIcon />
+          </a>
         </nav>
       </motion.div>
 
       <motion.div
         className="portrait-stage"
         onMouseMove={handlePointerMove}
-        onMouseLeave={() => { x.set(0); y.set(0); }}
+        onMouseLeave={() => {
+          x.set(0);
+          y.set(0);
+        }}
         style={{ rotateX, rotateY, transformPerspective: 1000 }}
         initial={{ opacity: 0, scale: 0.88, rotate: -4 }}
         animate={{ opacity: 1, scale: 1, rotate: 0 }}
         transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
         aria-label={`Interactive portrait${topic ? ` reacting to ${topic}` : ""}`}
       >
-        <div className="orbit orbit--outer" aria-hidden="true"><i /><i /><i /></div>
+        <div className="orbit orbit--outer" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
         <div className="orbit orbit--inner" aria-hidden="true" />
         <div className="portrait-stage__halo" aria-hidden="true" />
         <div className="portrait-stage__disc">
@@ -91,12 +107,16 @@ const Hero = memo(function Hero() {
           />
         </div>
         <div className="floating-label floating-label--top">
-          <span>STATUS</span><strong>{isTyping ? "Thinking..." : "Online"}</strong>
+          <span>STATUS</span>
+          <strong>{isTyping ? "Thinking..." : "Online"}</strong>
         </div>
         <div className="floating-label floating-label--bottom">
-          <span>FOCUS</span><strong>{topic || "AI products"}</strong>
+          <span>FOCUS</span>
+          <strong>{topic || "AI products"}</strong>
         </div>
-        <span className="stage-index" aria-hidden="true">V / 01</span>
+        <span className="stage-index" aria-hidden="true">
+          V / 01
+        </span>
       </motion.div>
     </section>
   );

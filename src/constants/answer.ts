@@ -100,7 +100,7 @@ export const TYPING_ON = [
   500,
 ];
 
-export const GREETING_MESSAGE = `Hey! Ask me about my experience, tech stack, or projects 👋`;
+export const GREETING_MESSAGE = `hello world`;
 
 export const EXPERIENCE_TIMELINE: TimelineEntry[] = [
   {

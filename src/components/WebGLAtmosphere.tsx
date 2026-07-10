@@ -13,6 +13,9 @@ uniform vec2 uResolution;
 uniform float uTime;
 uniform float uScroll;
 uniform float uStackProgress;
+uniform float uWorkProgress;
+uniform float uQuality;
+uniform float uMotionEnabled;
 
 #define FAR 42.0
 #define STEPS 54
@@ -110,8 +113,10 @@ mat3 cameraBasis(vec3 ro, vec3 target){
 void main(){
   vec2 uv = (gl_FragCoord.xy - .5 * uResolution.xy) / uResolution.y;
   float t = uScroll * uScroll * (3.0 - 2.0 * uScroll);
+  if(uMotionEnabled < .5) t = .27;
   float chapter = t * 6.0;
   float stackHold = smoothstep(.08, .34, uStackProgress) * (1.0 - smoothstep(.72, .96, uStackProgress));
+  float workHold = smoothstep(.05, .26, uWorkProgress) * (1.0 - smoothstep(.82, .98, uWorkProgress));
 
   vec3 ro = vec3(
     sin(chapter * 1.82) * .44,
@@ -119,16 +124,19 @@ void main(){
     mix(8.2, -31.5, t)
   );
   ro.x = mix(ro.x, -.62, stackHold * .68);
+  ro.x = mix(ro.x, -.82, workHold * .42);
   ro.y += stackHold * .08;
   ro.z += stackHold * 1.15;
   float lookX = sin((chapter + .35) * 1.82) * .62;
   lookX = mix(lookX, .48, stackHold * .72);
+  lookX = mix(lookX, .32, workHold * .38);
   vec3 target = ro + vec3(lookX, -.08 + sin(chapter * .7) * .05, -3.6);
   vec3 rd = cameraBasis(ro, target) * normalize(vec3(uv, 1.18));
 
   float travel = .0;
   float material = 0.0;
   for(int i=0; i<STEPS; i++){
+    if(float(i) > mix(34.0, 53.0, uQuality)) break;
     vec2 scene = mapScene(ro + rd * travel);
     if(scene.x < .0025 || travel > FAR){ material = scene.y; break; }
     travel += scene.x * .78;
@@ -144,7 +152,8 @@ void main(){
     vec3 keyPos = ro + vec3(-2.5, 3.8, -3.0);
     vec3 lightDir = normalize(keyPos - p);
     float diffuse = max(dot(n, lightDir), 0.0);
-    float shadow = softShadow(p + n * .015, lightDir, 8.0);
+    float shadow = 1.0;
+    if(uQuality > .5) shadow = softShadow(p + n * .015, lightDir, 8.0);
     float rim = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
 
     vec3 base = vec3(.055, .065, .078);
@@ -152,11 +161,11 @@ void main(){
     else if(material < 2.5) base = vec3(.075, .085, .098);
     else if(material < 3.5) base = vec3(.11, .105, .095);
     else if(material < 4.5) base = vec3(.055, .23, .48);
-    else base = mix(vec3(.18, .46, .95), vec3(.055, .15, .32), stackHold * .9);
+    else base = mix(vec3(.18, .46, .95), vec3(.055, .15, .32), max(stackHold * .9, workHold * .96));
 
     color = base * (.14 + diffuse * .72 * shadow);
     color += vec3(.12, .28, .55) * rim * .18;
-    if(material > 3.5) color += base * (material > 4.5 ? mix(1.35, .35, stackHold) : mix(.45, .25, stackHold));
+    if(material > 3.5) color += base * (material > 4.5 ? mix(1.35, .24, max(stackHold, workHold)) : mix(.45, .18, workHold));
 
     // Fine floor lines establish scale without particle noise.
     if(material < 1.5){
@@ -170,6 +179,7 @@ void main(){
 
   float practical = exp(-length(uv - vec2(.34 * sin(chapter), .16)) * 3.2);
   color += vec3(.02, .07, .17) * practical * .2;
+  color *= mix(1.0, .58, workHold);
   color *= 1.0 - dot(uv, uv) * .32;
   color += (hash21(gl_FragCoord.xy + floor(uTime * 3.0)) - .5) * .003;
   color = pow(color, vec3(.86));
@@ -239,12 +249,18 @@ export default function WebGLAtmosphere() {
     const time = gl.getUniformLocation(program, "uTime");
     const scroll = gl.getUniformLocation(program, "uScroll");
     const stackProgress = gl.getUniformLocation(program, "uStackProgress");
+    const workProgress = gl.getUniformLocation(program, "uWorkProgress");
+    const quality = gl.getUniformLocation(program, "uQuality");
+    const motionEnabled = gl.getUniformLocation(program, "uMotionEnabled");
     let frame = 0;
     let visible = !document.hidden;
     let targetProgress = 0;
     let smoothProgress = 0;
     let targetStackProgress = 0;
     let smoothStackProgress = 0;
+    let targetWorkProgress = 0;
+    let smoothWorkProgress = 0;
+    let renderQuality = 1;
     let lastFrame = 0;
 
     const readProgress = () => {
@@ -255,12 +271,18 @@ export default function WebGLAtmosphere() {
         const bounds = stack.getBoundingClientRect();
         targetStackProgress = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (bounds.height + window.innerHeight)));
       }
-      if (reducedMotion.matches) draw(performance.now());
+      const work = document.getElementById("work");
+      if (work) {
+        const bounds = work.getBoundingClientRect();
+        targetWorkProgress = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (bounds.height + window.innerHeight)));
+      }
+      if (reducedMotion.matches) draw(0);
     };
 
     const resize = () => {
       const mobile = window.innerWidth < 760;
-      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? .68 : 1.0);
+      const dpr = Math.min(window.devicePixelRatio || 1, mobile ? .62 : 1.0);
+      renderQuality = mobile ? 0 : 1;
       canvas.width = Math.max(1, Math.floor(window.innerWidth * dpr));
       canvas.height = Math.max(1, Math.floor(window.innerHeight * dpr));
       canvas.style.width = `${window.innerWidth}px`;
@@ -276,17 +298,24 @@ export default function WebGLAtmosphere() {
       smoothStackProgress = reducedMotion.matches
         ? targetStackProgress
         : smoothStackProgress + (targetStackProgress - smoothStackProgress) * .06;
+      smoothWorkProgress = reducedMotion.matches
+        ? targetWorkProgress
+        : smoothWorkProgress + (targetWorkProgress - smoothWorkProgress) * .055;
       gl.uniform2f(resolution, canvas.width, canvas.height);
       gl.uniform1f(time, reducedMotion.matches ? 0 : now * .001);
       gl.uniform1f(scroll, smoothProgress);
       gl.uniform1f(stackProgress, smoothStackProgress);
+      gl.uniform1f(workProgress, smoothWorkProgress);
+      gl.uniform1f(quality, renderQuality);
+      gl.uniform1f(motionEnabled, reducedMotion.matches ? 0 : 1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
     const render = (now: number) => {
       if (!visible || reducedMotion.matches) return;
       const cameraMoving = Math.abs(targetProgress - smoothProgress) > .00008
-        || Math.abs(targetStackProgress - smoothStackProgress) > .00008;
+        || Math.abs(targetStackProgress - smoothStackProgress) > .00008
+        || Math.abs(targetWorkProgress - smoothWorkProgress) > .00008;
       // Render camera travel near 60 FPS, then idle at 12 FPS to avoid wasting GPU cycles.
       if (now - lastFrame > (cameraMoving ? 15 : 80)) {
         draw(now);

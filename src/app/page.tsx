@@ -1,9 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import ProjectChapter from "@/components/ProjectChapter";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
+import { experience, projects } from "@/data/portfolio";
 
 const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
   ssr: false,
@@ -11,48 +13,7 @@ const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
 
 const chapters = ["hero", "approach", "stack", "work", "experience", "contact"] as const;
 
-const projects = [
-  {
-    number: "01",
-    title: "Gen-AI Knowledge System",
-    category: "INTELLIGENT SYSTEM",
-    statement: "Turning fragmented knowledge into dependable answers.",
-    description: "A production knowledge engine designed for accurate, real-time customer and internal support.",
-    contribution: "Product architecture · Full-stack delivery · AI integration",
-    outcome: "Faster access to trusted operational knowledge",
-    stack: ["LLM", "RAG", "TypeScript", "Python"],
-    visual: "knowledge",
-  },
-  {
-    number: "02",
-    title: "Operations Platform",
-    category: "PRODUCT ENGINEERING",
-    statement: "Making complex workflows feel calm and obvious.",
-    description: "A microservice-based workspace that connects internal management and operational workflows.",
-    contribution: "System design · Frontend engineering · Backend services",
-    outcome: "One clearer workflow across operational teams",
-    stack: ["Next.js", "Node.js", "PostgreSQL"],
-    visual: "operations",
-  },
-  {
-    number: "03",
-    title: "Cloud Maintenance Suite",
-    category: "CLOUD PLATFORM",
-    statement: "Connecting teams, assets, and field work.",
-    description: "A cloud-native product that brings maintenance data and field operations into one system.",
-    contribution: "Interface design · Cloud architecture · Infrastructure",
-    outcome: "A shared source of truth for maintenance work",
-    stack: ["React", "AWS", "Terraform"],
-    visual: "cloud",
-  },
-];
-
-const experience = [
-  ["2025 — NOW", "Full Stack Engineer", "Amity Solutions", "Building production AI products and high-trust software systems."],
-  ["2024 — 2025", "Junior Full Stack Engineer", "Amity Solutions", "Shipped a Gen-AI knowledge base for customer and internal support."],
-  ["2023", "Full Stack Engineer · Intern", "Amity Solutions", "Built product features, chatbot integrations, and cloud infrastructure."],
-  ["2020 — 2023", "Freelance Software Engineer", "KMITL Projects", "Created maintenance, ride-sharing, and booking platforms."],
-];
+const CONTACT_EMAIL = "yobicod.4u@gmail.com";
 
 function Arrow({ down = false }: { down?: boolean }) {
   return (
@@ -119,6 +80,13 @@ function useJourney() {
 function Navigation({ active }: { active: string }) {
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const restoreFocusRef = useRef(false);
+
+  const closeMenu = useCallback((restoreFocus = false) => {
+    restoreFocusRef.current = restoreFocus;
+    setOpen(false);
+  }, []);
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
@@ -126,7 +94,7 @@ function Navigation({ active }: { active: string }) {
       ? window.setTimeout(() => headerRef.current?.querySelector<HTMLAnchorElement>(".nav-links a")?.focus(), 50)
       : 0;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape" && open) closeMenu(true);
       if (event.key !== "Tab" || !open || !headerRef.current) return;
       const focusable = Array.from(headerRef.current.querySelectorAll<HTMLElement>("a, button"))
         .filter((item) => item.offsetParent !== null);
@@ -141,16 +109,23 @@ function Navigation({ active }: { active: string }) {
       document.body.classList.remove("menu-open");
       window.removeEventListener("keydown", onKeyDown);
     };
+  }, [open, closeMenu]);
+
+  useEffect(() => {
+    if (!open && restoreFocusRef.current) {
+      restoreFocusRef.current = false;
+      window.setTimeout(() => toggleRef.current?.focus(), 0);
+    }
   }, [open]);
 
   return (
     <header className="nav-shell" ref={headerRef}>
-      <a className="brand" href="#hero" aria-label="Visal Suwanarat, home" onClick={() => setOpen(false)}>
+      <a className="brand" href="#hero" aria-label="Visal Suwanarat, home" onClick={() => closeMenu()}>
         <b>V</b><span>VISAL<br />SUWANARAT</span>
       </a>
       <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
         {chapters.slice(1).map((chapter, index) => (
-          <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => setOpen(false)}>
+          <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => closeMenu()}>
             <span>0{index + 2}</span>{chapter}
           </a>
         ))}
@@ -159,7 +134,8 @@ function Navigation({ active }: { active: string }) {
       <button
         type="button"
         className="menu-toggle"
-        onClick={() => setOpen((value) => !value)}
+        ref={toggleRef}
+        onClick={() => open ? closeMenu(true) : setOpen(true)}
         aria-label={open ? "Close menu" : "Open menu"}
         aria-controls="primary-navigation"
         aria-expanded={open}
@@ -172,10 +148,23 @@ function Navigation({ active }: { active: string }) {
 
 export default function Home() {
   const { active, progressRef } = useJourney();
+  const [copyStatus, setCopyStatus] = useState("");
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      setCopyStatus("Email copied");
+    } catch {
+      setCopyStatus("Copy unavailable — select the email address");
+    }
+  };
 
   return (
     <main className="experience" data-chapter={active}>
-      <a className="skip-link" href="#work">Skip to selected work</a>
+      <div className="skip-links">
+        <a className="skip-link" href="#approach">Skip to content</a>
+        <a className="skip-link" href="#work">Skip to selected work</a>
+      </div>
       <WebGLAtmosphere />
       <div className="noise" aria-hidden="true" />
       <div className="vignette" aria-hidden="true" />
@@ -187,9 +176,9 @@ export default function Home() {
 
       <section id="hero" className="scene hero-scene is-visible">
         <div className="hero-copy reveal">
-          <SceneLabel index="01">CREATIVE ENGINEER · BANGKOK</SceneLabel>
+          <SceneLabel index="01">FULL-STACK ENGINEER · AI &amp; AUTOMATION</SceneLabel>
           <h1>Software<br /><em>Engineer.</em></h1>
-          <p>I design and build intelligent products where complex technology feels clear, useful, and quietly powerful.</p>
+          <p>I build intelligent products, scalable systems, and thoughtful automation with production craftsmanship from interface to infrastructure.</p>
           <div className="hero-actions">
             <a className="primary-cta" href="#work"><span>Explore selected work</span><Arrow down /></a>
             <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Résumé <Arrow /></a>
@@ -215,12 +204,13 @@ export default function Home() {
           <h2>Clarity in<br />every <em>layer.</em></h2>
         </div>
         <div className="about-copy reveal reveal--late">
-          <p className="about-lead">I turn complex problems into calm, useful software—balancing rigorous engineering with a sharp eye for how a product should <em>feel.</em></p>
-          <p>I&apos;m Visal, a full-stack engineer working across intelligent interfaces, reliable backends, and AI-powered automation. I care about the details users notice and the architecture they never have to.</p>
-          <dl>
-            <div><dt>Principle</dt><dd>Less, but better</dd></div>
-            <div><dt>Approach</dt><dd>Product thinking · Engineering depth</dd></div>
-          </dl>
+          <p className="about-lead">A practical process for turning complexity into calm, useful software—always guided by <em>less, but better.</em></p>
+          <ol className="practice-steps">
+            <li><span>01</span><div><strong>Frame</strong><p>Define the real problem and the outcome that matters.</p></div></li>
+            <li><span>02</span><div><strong>Architect</strong><p>Shape a system that remains clear as it scales.</p></div></li>
+            <li><span>03</span><div><strong>Ship</strong><p>Build the full experience with production discipline.</p></div></li>
+            <li><span>04</span><div><strong>Measure</strong><p>Learn from real use and refine what creates value.</p></div></li>
+          </ol>
         </div>
       </section>
 
@@ -235,26 +225,7 @@ export default function Home() {
           <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
         </div>
         <div className="project-list">
-          {projects.map((project) => (
-            <article className="project-card reveal" key={project.number}>
-              <div className={`project-visual project-visual--${project.visual}`} aria-hidden="true">
-                <div className="visual-top"><span>{project.category}</span><span>/{project.number}</span></div>
-                <div className="system-map"><i /><i /><i /><i /><b>{project.title.split(" ")[0]}</b><span /><span /><span /></div>
-                <span className="visual-caption">SYSTEM VIEW · {project.number}</span>
-              </div>
-              <div className="project-copy">
-                <span className="project-index">CASE {project.number}</span>
-                <h3>{project.title}</h3>
-                <p className="project-statement">{project.statement}</p>
-                <p>{project.description}</p>
-                <dl>
-                  <div><dt>Contribution</dt><dd>{project.contribution}</dd></div>
-                  <div><dt>Outcome</dt><dd>{project.outcome}</dd></div>
-                </dl>
-                <div className="project-stack">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
-              </div>
-            </article>
-          ))}
+          {projects.map((project, index) => <ProjectChapter project={project} featured={index === 0} key={project.id} />)}
         </div>
         <a className="work-link" href={GITHUB_URL} target="_blank" rel="noreferrer"><span>Explore the code archive</span><Arrow /></a>
       </section>
@@ -266,7 +237,7 @@ export default function Home() {
           <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Download résumé <Arrow down /></a>
         </div>
         <div className="timeline reveal reveal--late">
-          {experience.map(([date, role, company, description], index) => (
+          {experience.map(({ date, role, company, description }, index) => (
             <article className="timeline-item" key={`${date}-${role}`}>
               <span className="timeline-number">0{index + 1}</span>
               <time>{date}</time>
@@ -281,7 +252,13 @@ export default function Home() {
           <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
           <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
           <h2>Let&apos;s build<br /><em>something</em> together.</h2>
-          <a className="primary-cta primary-cta--light" href="mailto:yobicod.4u@gmail.com"><span>Start a conversation</span><Arrow /></a>
+          <a className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>Start a conversation</span><Arrow /></a>
+          <div className="contact-options">
+            <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+            <button type="button" onClick={copyEmail}>Copy email</button>
+            <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LinkedIn ↗</a>
+          </div>
+          <p className="copy-status" aria-live="polite">{copyStatus}</p>
         </div>
         <footer>
           <div><span>VISAL SUWANARAT © 2026</span><span>DESIGNED &amp; ENGINEERED WITH INTENT</span></div>
