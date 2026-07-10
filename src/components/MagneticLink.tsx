@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { PointerEvent, ReactNode } from "react";
 import { useCallback, useRef } from "react";
+import { useSound } from "@/components/SoundProvider";
 
 type MagneticLinkProps = {
   children: ReactNode;
@@ -16,6 +17,7 @@ type MagneticLinkProps = {
 /** Adds a restrained pointer response to the primary calls to action. */
 export default function MagneticLink({ children, strength = 7, ...props }: MagneticLinkProps) {
   const reducedMotion = useReducedMotion();
+  const { playEffect } = useSound();
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   const handlePointerMove = useCallback((event: PointerEvent<HTMLAnchorElement>) => {
@@ -38,6 +40,7 @@ export default function MagneticLink({ children, strength = 7, ...props }: Magne
       ref={linkRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
+      onClick={() => playEffect("action")}
       whileTap={reducedMotion ? undefined : { scale: 0.98 }}
     >
       {children}

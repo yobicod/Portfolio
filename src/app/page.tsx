@@ -9,6 +9,8 @@ import SignaturePortrait from "@/components/SignaturePortrait";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import ExperienceLoader from "@/components/ExperienceLoader";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SoundProvider, { useSound } from "@/components/SoundProvider";
+import SoundToggle from "@/components/SoundToggle";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 import { I18nProvider, useTranslation } from "@/i18n/I18nProvider";
 
@@ -85,6 +87,7 @@ function useJourney() {
 
 function Navigation({ active }: { active: string }) {
   const { t } = useTranslation();
+  const { playEffect } = useSound();
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -127,18 +130,19 @@ function Navigation({ active }: { active: string }) {
 
   return (
     <header className={active === "hero" ? "nav-shell" : "nav-shell is-scrolled"} ref={headerRef}>
-      <a className="brand" href="#hero" aria-label={t.nav.brandLabel} onClick={() => closeMenu()}>
+      <a className="brand" href="#hero" aria-label={t.nav.brandLabel} onClick={() => { playEffect("navigation"); closeMenu(); }}>
         <b>V</b><span>VISAL<br />SUWANARAT</span>
       </a>
       <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label={t.nav.primaryLabel}>
         {navigationChapters.map((chapter, index) => (
-          <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => closeMenu()}>
+          <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => { playEffect("navigation"); closeMenu(); }}>
             <span>0{index + 2}</span>{t.nav[chapter]}
           </a>
         ))}
       </nav>
-      <a className="nav-status" href="#contact" onClick={() => closeMenu()}><i /> {t.nav.availability}</a>
+      <a className="nav-status" href="#contact" onClick={() => { playEffect("navigation"); closeMenu(); }}><i /> {t.nav.availability}</a>
       <LanguageSwitcher />
+      <SoundToggle />
       <button
         type="button"
         className="menu-toggle"
@@ -156,6 +160,7 @@ function Navigation({ active }: { active: string }) {
 
 function PortfolioContent() {
   const { t } = useTranslation();
+  const { playEffect } = useSound();
   const { active, progressRef } = useJourney();
   const [copyStatus, setCopyStatus] = useState("");
   const copyStatusTimer = useRef<number | undefined>(undefined);
@@ -166,6 +171,7 @@ function PortfolioContent() {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       setCopyStatus(t.contact.copied);
+      playEffect("success");
     } catch {
       setCopyStatus(t.contact.copyUnavailable);
     }
@@ -281,5 +287,5 @@ function PortfolioContent() {
 }
 
 export default function Home() {
-  return <I18nProvider><PortfolioContent /></I18nProvider>;
+  return <I18nProvider><SoundProvider><PortfolioContent /></SoundProvider></I18nProvider>;
 }
