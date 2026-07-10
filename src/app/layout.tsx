@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { DM_Mono, Manrope, Newsreader } from "next/font/google";
+import { DM_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
-});
-
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
 });
 
 const dmMono = DM_Mono({
@@ -20,7 +14,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Visal Suwanarat — Full-stack & AI Engineer",
+  title: "Visal Suwanarat — Software Engineer & AI Builder",
   description:
     "Portfolio of Visal Suwanarat, a full-stack engineer and creative technologist building thoughtful AI-powered products.",
 };
@@ -36,7 +30,7 @@ export default function RootLayout({
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>
       <body
-        className={`${manrope.variable} ${newsreader.variable} ${dmMono.variable} antialiased`}
+        className={`${manrope.variable} ${dmMono.variable} antialiased`}
         suppressHydrationWarning
       >
         {children}
