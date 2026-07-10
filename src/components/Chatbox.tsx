@@ -1,11 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
-import SendIcon from "@mui/icons-material/Send";
-import { Chip, TextField, Paper, Button } from "@mui/material";
 import { QUICK_REPLY } from "@/constants/quickReply";
 import { botService } from "@/services/bot.service";
-import { motion } from "framer-motion";
-import { GREETING_MESSAGE } from "@/constants/answer";
 import { useTopic } from "@/context/TopicContext";
 import type { RichMessage, RichBotResponse } from "@/types/chat.types";
 import { RichBubble } from "@/components/RichBubble";
@@ -17,7 +13,11 @@ const TYPING_SPEED_MS = 30;
 
 /** Initial message shown when chat loads */
 const INITIAL_MESSAGES: RichMessage[] = [
-  { role: "bot", type: "text", text: GREETING_MESSAGE },
+  {
+    role: "bot",
+    type: "text",
+    text: "Hey — I’m Visal’s digital twin. Pick a topic or ask me about the way I work.",
+  },
 ];
 
 const Chatbox = memo(function Chatbox() {
@@ -216,181 +216,108 @@ const Chatbox = memo(function Chatbox() {
   if (!mounted) return null;
 
   return (
-    <section className="flex flex-col flex-1 min-h-0 w-full">
+    <section id="conversation" className="conversation-section" aria-labelledby="conversation-title">
       {isCelebrate && <Celebrate />}
 
-      <Paper
-        className="ai-panel flex flex-col flex-1 min-h-0 p-4 sm:p-5"
-        sx={{
-          backgroundImage:
-            "linear-gradient(160deg, rgba(14, 28, 49, 0.82), rgba(8, 15, 28, 0.95))",
-        }}
-      >
-        {/* Chat header */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[rgba(124,211,255,0.14)] shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[var(--color-brand)] shadow-[0_0_6px_var(--color-brand)]" />
-            <span className="text-sm font-semibold text-[var(--foreground)] tracking-wide">
-              Visal&apos;s Bot
-            </span>
+      <div className="conversation-intro">
+        <h2 id="conversation-title">Don&apos;t scroll.<br /><em>Ask me.</em></h2>
+        <p>
+          Portfolios are usually one-way conversations. This one isn&apos;t.
+          Choose a thread or type a question to explore my work, background,
+          and the tools I use to build things.
+        </p>
+      </div>
+
+      <div className="chat-studio">
+        <aside className="chat-sidebar" aria-label="Suggested conversation topics">
+          <span className="chat-sidebar__label">CONVERSATION INDEX</span>
+          <strong className="chat-sidebar__brand">Ask Visal</strong>
+          <div className="chat-sidebar__nav">
+            {QUICK_REPLY.map((chip) => (
+              <button
+                key={chip.label}
+                type="button"
+                className="quick-button"
+                disabled={isDisableInput}
+                onClick={() => handleQuickReply(chip.label)}
+              >
+                {chip.label}
+              </button>
+            ))}
           </div>
+          <p className="chat-sidebar__note">
+            HUMAN-CURATED RESPONSES<br />NO DATA LEAVES YOUR BROWSER
+          </p>
+        </aside>
+
+        <div className="chat-main">
+          <div className="chat-header">
+            <div className="chat-person">
+              <span className="chat-avatar">VS</span>
+              <div>
+                <strong>Visal&apos;s digital twin</strong>
+                <span>ONLINE · USUALLY REPLIES IN 0.5S</span>
+              </div>
+            </div>
           <button
+            type="button"
             onClick={handleNewChat}
             disabled={isDisableInput}
-            className="flex items-center gap-1.5 rounded-lg border border-[rgba(147,167,202,0.3)] bg-[rgba(6,12,24,0.65)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="reset-button"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582M20 20v-5h-.581m0 0A7.963 7.963 0 0112 20a7.963 7.963 0 01-7.419-5H4m16-6a7.963 7.963 0 00-7.419-5A7.963 7.963 0 004 9h.581"
-              />
-            </svg>
-            New chat
+            Reset ↻
           </button>
         </div>
 
-        {/* Chat scroll area — flex-1 fills all available space */}
-        <div className="flex-1 min-h-[200px] overflow-y-auto space-y-3 pr-1">
+        <div className="message-list" aria-live="polite">
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`flex ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`message-row${msg.role === "user" ? " message-row--user" : ""}`}
             >
               {msg.type === "typing" ? (
-                <div className="rounded-2xl px-4 py-3 border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)]">
-                  <div className="flex gap-1 items-center h-4">
-                    <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
-                    <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
-                    <span className="dot-pulse" style={{ animationDelay: "320ms" }} />
-                  </div>
+                <div className="typing-bubble" aria-label="Visal is typing">
+                  <span className="dot-pulse" style={{ animationDelay: "0ms" }} />
+                  <span className="dot-pulse" style={{ animationDelay: "160ms" }} />
+                  <span className="dot-pulse" style={{ animationDelay: "320ms" }} />
                 </div>
               ) : msg.type !== "text" ? (
                 <RichBubble message={msg} />
               ) : (
-                <div
-                  className={`rounded-2xl px-4 py-2 max-w-[85%] sm:max-w-[75%] text-sm leading-relaxed whitespace-pre-wrap ${
-                    msg.role === "user"
-                      ? "bg-[linear-gradient(120deg,#1a8d9c,#0f4f73)] text-[#f2fbff] shadow-[0_8px_22px_rgba(6,18,40,0.42)]"
-                      : "border border-[rgba(147,167,202,0.28)] bg-[rgba(8,16,31,0.9)] text-[var(--foreground)]"
-                  }`}
-                >
-                  {msg.text}
-                </div>
+                <div className="message-bubble">{msg.text}</div>
               )}
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick replies — pinned above input, horizontal scroll on mobile */}
-        <div className="mt-3 shrink-0 flex gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-x-visible">
-          {QUICK_REPLY.map((chip, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.9 }}
-              className="shrink-0"
-            >
-              <Chip
-                label={chip.label}
-                variant="outlined"
-                clickable
-                disabled={isDisableInput}
-                onClick={() => handleQuickReply(chip.label)}
-                sx={{
-                  fontSize: "0.72rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "var(--color-brand)",
-                  borderColor: "rgba(70, 233, 255, 0.42)",
-                  backgroundColor: "rgba(8, 16, 31, 0.55)",
-                  "&:hover": {
-                    borderColor: "var(--color-brand)",
-                    backgroundColor: "rgba(17, 207, 231, 0.18)",
-                  },
-                  "&.Mui-disabled": {
-                    color: "rgba(147, 167, 202, 0.58)",
-                    borderColor: "rgba(147, 167, 202, 0.25)",
-                  },
-                }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Input */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSend();
           }}
-          className="mt-3 shrink-0 flex gap-2 sm:gap-3"
+          className="chat-composer"
         >
-          <TextField
-            size="small"
-            placeholder="Type something..."
+          <label htmlFor="portfolio-question" className="sr-only">Ask Visal a question</label>
+          <input
+            id="portfolio-question"
+            className="chat-input"
+            placeholder="Ask me about my experience..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isDisableInput}
-            className="flex-1"
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "0.85rem",
-                backgroundColor: "rgba(10, 20, 36, 0.86)",
-                color: "var(--color-foreground)",
-                "& fieldset": {
-                  borderColor: "rgba(147, 167, 202, 0.32)",
-                },
-                "&:hover fieldset": {
-                  borderColor: "rgba(70, 233, 255, 0.52)",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "var(--color-brand)",
-                },
-                "&.Mui-disabled": { opacity: 0.5 },
-              },
-              "& .MuiInputBase-input::placeholder": {
-                color: "rgba(147, 167, 202, 0.88)",
-                opacity: 1,
-              },
-            }}
           />
-          <Button
-            variant="contained"
-            endIcon={<SendIcon />}
-            onClick={handleSend}
+          <button
+            type="submit"
+            className="send-button"
             disabled={isDisableInput}
-            sx={{
-              minHeight: "40px",
-              minWidth: "100px",
-              borderRadius: "0.85rem",
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: "#062031",
-              backgroundImage:
-                "linear-gradient(120deg, var(--color-brand), var(--color-signal))",
-              boxShadow: "var(--shadow-glow)",
-              "&:hover": {
-                backgroundImage:
-                  "linear-gradient(120deg, var(--color-brand-strong), var(--color-signal))",
-              },
-            }}
+            aria-label="Send message"
           >
-            Send
-          </Button>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 16 12-12M7 4h9v9" /></svg>
+          </button>
         </form>
-      </Paper>
+        </div>
+      </div>
     </section>
   );
 });

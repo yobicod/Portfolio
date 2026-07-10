@@ -1,26 +1,38 @@
 "use client";
+
 import Chatbox from "@/components/Chatbox";
-import CursorBox from "@/components/CursorBox";
 import Hero from "@/components/Hero";
 import { TopicProvider } from "@/context/TopicContext";
 
 export default function Home() {
   return (
     <TopicProvider>
-      <div className="relative min-h-screen w-full overflow-x-hidden">
-        <CursorBox />
-        {/* Mobile: flex-col stack. Desktop (md+): two-column grid */}
-        <div className="relative z-20 mx-auto flex flex-col md:grid md:grid-cols-[38%_1fr] md:gap-x-6 min-h-screen max-w-6xl px-4 sm:px-6 lg:px-10">
-          {/* Left column — sticky on desktop */}
-          <div className="md:sticky md:top-0 md:h-screen md:flex md:items-center py-4 md:py-0">
-            <Hero />
+      <main className="portfolio-shell">
+        <div className="ambient-glow ambient-glow--one" aria-hidden="true" />
+        <div className="ambient-glow ambient-glow--two" aria-hidden="true" />
+
+        <header className="site-header">
+          <a className="wordmark" href="#top" aria-label="Visal Suwanarat, home">
+            <span>VS</span>
+            <span className="wordmark__name">VISAL SUWANARAT</span>
+          </a>
+          <div className="site-header__meta">
+            <span className="availability-dot" aria-hidden="true" />
+            <span>Bangkok · Available for ambitious work</span>
           </div>
-          {/* Right column — chat fills viewport height */}
-          <div className="flex flex-col flex-1 md:h-screen md:py-6 pb-6">
-            <Chatbox />
-          </div>
+        </header>
+
+        <div id="top" className="portfolio-grid">
+          <Hero />
+          <Chatbox />
         </div>
-      </div>
+
+        <footer className="site-footer">
+          <span>FULL-STACK × AI</span>
+          <span className="site-footer__line" aria-hidden="true" />
+          <span>SELECTED INTERFACE / 2026</span>
+        </footer>
+      </main>
     </TopicProvider>
   );
 }

@@ -1,132 +1,104 @@
 "use client";
-import Link from "next/link";
-import React, { memo } from "react";
-import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
-import { TypeAnimation } from "react-type-animation";
-import { motion, type Easing } from "framer-motion";
-import { JOB_DESCRIPTION } from "@/constants/information";
-import { useTopic } from "@/context/TopicContext";
-import { getTopicImage } from "@/constants/topicImageMap";
 
-/** Animation configuration for the floating avatar */
-const AVATAR_ANIMATION = {
-  initial: { opacity: 0, y: 0, rotate: 0 },
-  animate: {
-    opacity: 1,
-    y: [0, -10, 0],
-    rotate: [-2, 2, -2],
-  },
-  transition: {
-    opacity: { duration: 1 },
-    y: {
-      duration: 2,
-      repeat: Infinity,
-      repeatType: "loop" as const,
-      ease: "easeInOut" as Easing,
-    },
-    rotate: {
-      duration: 6,
-      repeat: Infinity,
-      repeatType: "loop" as const,
-      ease: "easeInOut" as Easing,
-    },
-  },
-};
+import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
+import { getTopicImage } from "@/constants/topicImageMap";
+import { useTopic } from "@/context/TopicContext";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import Link from "next/link";
+import { memo, type MouseEvent } from "react";
+
+const ArrowIcon = () => (
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M3 13 13 3M5 3h8v8" />
+  </svg>
+);
 
 const Hero = memo(function Hero() {
   const { topic, isTyping } = useTopic();
   const avatarSrc = getTopicImage(topic, isTyping);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 90, damping: 18 });
+  const springY = useSpring(y, { stiffness: 90, damping: 18 });
+  const rotateX = useTransform(springY, [-0.5, 0.5], [8, -8]);
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-10, 10]);
+
+  const handlePointerMove = (event: MouseEvent<HTMLDivElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    x.set((event.clientX - bounds.left) / bounds.width - 0.5);
+    y.set((event.clientY - bounds.top) / bounds.height - 0.5);
+  };
 
   return (
-    <>
-      {/* Mobile: compact horizontal strip */}
-      <section className="flex md:hidden items-center gap-3 px-2 py-3 border-b border-[rgba(124,211,255,0.14)] w-full">
-        <img
-          src={avatarSrc}
-          alt="Visal"
-          className="h-12 w-12 shrink-0 rounded-xl border border-[rgba(70,233,255,0.42)] bg-[rgba(8,16,31,0.72)] object-cover p-0.5"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="text-[0.6rem] font-medium uppercase tracking-[0.26em] text-[var(--foreground-muted)] leading-none mb-0.5">
-            Fullstack · AI
-          </p>
-          <h1 className="text-sm font-semibold text-[var(--foreground)] leading-tight">
-            Hello, I&apos;m Visal 🇹🇭
-          </h1>
-          <div className="mt-1.5 flex gap-2">
-            <Link
-              href={GITHUB_URL}
-              className="ai-link"
-              style={{ fontSize: "0.62rem", padding: "0.2rem 0.55rem" }}
-            >
-              Github
-            </Link>
-            <Link
-              href={LINKEDIN_URL}
-              className="ai-link"
-              style={{ fontSize: "0.62rem", padding: "0.2rem 0.55rem" }}
-            >
-              Linkedin
-            </Link>
-            <a
-              href="/visal_suwanarat_cv.pdf"
-              download
-              className="ai-link"
-              style={{ fontSize: "0.62rem", padding: "0.2rem 0.55rem" }}
-            >
-              CV
-            </a>
-          </div>
+    <section className="hero" aria-labelledby="hero-title">
+      <motion.div
+        className="hero__copy"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <p className="eyebrow"><span>01</span> ENGINEER / CREATIVE TECHNOLOGIST</p>
+        <h1 id="hero-title">
+          I build digital
+          <span className="display-accent"> experiences</span>
+          <br />with a pulse.
+        </h1>
+        <p className="hero__intro">
+          I&apos;m Visal, a full-stack engineer crafting intelligent products at
+          the intersection of <strong>human intuition</strong> and
+          <strong> emerging technology</strong>.
+        </p>
+
+        <div className="hero__actions">
+          <a className="primary-action" href="#conversation">
+            Explore my work <ArrowIcon />
+          </a>
+          <a className="text-action" href="/visal_suwanarat_cv.pdf" download>
+            Download résumé <span>↓</span>
+          </a>
         </div>
-      </section>
 
-      {/* Desktop: vertical column (no ai-panel card) */}
-      <section className="hidden md:flex flex-col items-center justify-center text-center w-full px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="flex flex-col items-center w-full"
-        >
+        <nav className="social-links" aria-label="Social links">
+          <Link href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub <ArrowIcon /></Link>
+          <Link href={LINKEDIN_URL} target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></Link>
+          <a href="mailto:yobicod.4u@gmail.com">Email <ArrowIcon /></a>
+        </nav>
+      </motion.div>
+
+      <motion.div
+        className="portrait-stage"
+        onMouseMove={handlePointerMove}
+        onMouseLeave={() => { x.set(0); y.set(0); }}
+        style={{ rotateX, rotateY, transformPerspective: 1000 }}
+        initial={{ opacity: 0, scale: 0.88, rotate: -4 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+        aria-label={`Interactive portrait${topic ? ` reacting to ${topic}` : ""}`}
+      >
+        <div className="orbit orbit--outer" aria-hidden="true"><i /><i /><i /></div>
+        <div className="orbit orbit--inner" aria-hidden="true" />
+        <div className="portrait-stage__halo" aria-hidden="true" />
+        <div className="portrait-stage__disc">
           <motion.img
+            key={avatarSrc}
             src={avatarSrc}
-            alt="Hero image"
-            className="h-[160px] w-[160px] rounded-3xl border border-[rgba(70,233,255,0.42)] bg-[rgba(8,16,31,0.72)] object-cover p-2 shadow-glow lg:h-[190px] lg:w-[190px]"
-            width={200}
-            height={200}
-            {...AVATAR_ANIMATION}
+            alt="Illustrated portrait of Visal"
+            width={460}
+            height={460}
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35 }}
           />
-
-          <p className="mt-5 text-[0.64rem] font-medium uppercase tracking-[0.32em] text-[var(--foreground-muted)]">
-            Fullstack Engineer • AI Product Crafter
-          </p>
-
-          <h1 className="mt-2 text-2xl font-semibold leading-tight text-[var(--foreground)] lg:text-3xl xl:text-4xl">
-            Hello, I&apos;m Visal 🇹🇭
-          </h1>
-
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Link href={GITHUB_URL} className="ai-link">
-              Github
-            </Link>
-            <Link href={LINKEDIN_URL} className="ai-link">
-              Linkedin
-            </Link>
-            <a href="/visal_suwanarat_cv.pdf" download className="ai-link">
-              CV
-            </a>
-          </div>
-
-          <div className="mx-auto mt-6 w-full max-w-[260px] rounded-2xl border border-[rgba(147,167,202,0.22)] bg-[rgba(7,14,27,0.68)] px-4 py-3 text-sm text-[var(--foreground-muted)]">
-            <TypeAnimation
-              sequence={JOB_DESCRIPTION}
-              speed={50}
-              repeat={Infinity}
-            />
-          </div>
-        </motion.div>
-      </section>
-    </>
+        </div>
+        <div className="floating-label floating-label--top">
+          <span>STATUS</span><strong>{isTyping ? "Thinking..." : "Online"}</strong>
+        </div>
+        <div className="floating-label floating-label--bottom">
+          <span>FOCUS</span><strong>{topic || "AI products"}</strong>
+        </div>
+        <span className="stage-index" aria-hidden="true">V / 01</span>
+      </motion.div>
+    </section>
   );
 });
 
