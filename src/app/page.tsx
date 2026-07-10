@@ -8,7 +8,7 @@ const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
   ssr: false,
 });
 
-const chapters = ["hero", "about", "skills", "work", "experience", "contact"] as const;
+const chapters = ["hero", "approach", "work", "experience", "contact"] as const;
 
 const capabilities = [
   { number: "01", title: "Product interfaces", detail: "React · Next.js · TypeScript · Motion" },
@@ -91,6 +91,12 @@ function useJourney() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? window.scrollY / max : 0;
       progressRef.current?.style.setProperty("--journey-progress", `${progress}`);
+      document.documentElement.style.setProperty("--scroll-progress", `${progress}`);
+      sections.forEach((section) => {
+        const bounds = section.getBoundingClientRect();
+        const local = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (bounds.height + window.innerHeight)));
+        section.style.setProperty("--scene-progress", `${local}`);
+      });
       const focusLine = window.innerHeight * .42;
       const current = sections.find((section) => {
         const bounds = section.getBoundingClientRect();
@@ -116,19 +122,33 @@ function useJourney() {
 
 function Navigation({ active }: { active: string }) {
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.body.classList.toggle("menu-open", open);
-    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    const focusTimer = open
+      ? window.setTimeout(() => headerRef.current?.querySelector<HTMLAnchorElement>(".nav-links a")?.focus(), 50)
+      : 0;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+      if (event.key !== "Tab" || !open || !headerRef.current) return;
+      const focusable = Array.from(headerRef.current.querySelectorAll<HTMLElement>("a, button"))
+        .filter((item) => item.offsetParent !== null);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
     window.addEventListener("keydown", onKeyDown);
     return () => {
+      window.clearTimeout(focusTimer);
       document.body.classList.remove("menu-open");
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
 
   return (
-    <header className="nav-shell">
+    <header className="nav-shell" ref={headerRef}>
       <a className="brand" href="#hero" aria-label="Visal Suwanarat, home" onClick={() => setOpen(false)}>
         <b>V</b><span>VISAL<br />SUWANARAT</span>
       </a>
@@ -141,6 +161,7 @@ function Navigation({ active }: { active: string }) {
       </nav>
       <div className="nav-status"><i /> AVAILABLE FOR SELECT PROJECTS</div>
       <button
+        type="button"
         className="menu-toggle"
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Close menu" : "Open menu"}
@@ -165,7 +186,7 @@ export default function Home() {
       <Navigation active={active} />
 
       <aside className="journey-progress" ref={progressRef} aria-hidden="true">
-        <span>01</span><div><i /></div><span>06</span>
+        <span>01</span><div><i /></div><span>05</span>
       </aside>
 
       <section id="hero" className="scene hero-scene is-visible">
@@ -184,21 +205,17 @@ export default function Home() {
           </dl>
         </div>
 
-        <div className="workstation reveal reveal--late" aria-hidden="true">
-          <div className="desk-glow" />
-          <div className="monitor">
-            <div className="monitor-bar"><span>YOBICOD / SYSTEM</span><i /></div>
-            <div className="monitor-copy"><small>PRODUCT / 01</small><b>DESIGNING</b><b>INTELLIGENT</b><em>PRODUCTS_</em></div>
-            <div className="monitor-orbit"><i /><i /><i /><b /></div>
-          </div>
-          <div className="desk-plane"><i /><i /><i /><i /><i /></div>
+        <div className="world-note reveal reveal--late" aria-hidden="true">
+          <span>ATELIER / 01</span>
+          <b>Systems in motion</b>
+          <i>Scroll drives the camera</i>
         </div>
         <p className="scroll-cue">SCROLL TO BEGIN <span>↓</span></p>
       </section>
 
-      <section id="about" className="scene about-scene">
+      <section id="approach" className="scene about-scene">
         <div className="about-heading reveal">
-          <SceneLabel index="02">THE PERSON BEHIND THE SYSTEMS</SceneLabel>
+          <SceneLabel index="02">THE PRACTICE / FULL SYSTEM VIEW</SceneLabel>
           <h2>Clarity in<br />every <em>layer.</em></h2>
         </div>
         <div className="about-copy reveal reveal--late">
@@ -209,16 +226,7 @@ export default function Home() {
             <div><dt>Approach</dt><dd>Product thinking · Engineering depth</dd></div>
           </dl>
         </div>
-        <div className="chapter-mark" aria-hidden="true"><span>02</span><i /></div>
-      </section>
-
-      <section id="skills" className="scene skills-scene">
-        <div className="skills-intro reveal">
-          <SceneLabel index="03">CAPABILITIES / TOOLKIT</SceneLabel>
-          <h2>Built across<br /><em>the stack.</em></h2>
-          <p>Broad enough to see the whole system. Focused enough to make every layer count.</p>
-        </div>
-        <div className="capability-list reveal reveal--late">
+        <div className="capability-list reveal">
           {capabilities.map((item) => (
             <article key={item.number}>
               <span>{item.number}</span><h3>{item.title}</h3><p>{item.detail}</p><i aria-hidden="true">↗</i>
@@ -229,7 +237,7 @@ export default function Home() {
 
       <section id="work" className="scene work-scene">
         <div className="work-intro reveal">
-          <SceneLabel index="04">SELECTED SYSTEMS / 2023—2026</SceneLabel>
+          <SceneLabel index="03">SELECTED SYSTEMS / 2023—2026</SceneLabel>
           <h2>Work with<br /><em>purpose.</em></h2>
           <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
         </div>
@@ -238,7 +246,7 @@ export default function Home() {
             <article className="project-card reveal" key={project.number}>
               <div className={`project-visual project-visual--${project.visual}`} aria-hidden="true">
                 <div className="visual-top"><span>{project.category}</span><span>/{project.number}</span></div>
-                <div className="system-map"><i /><i /><i /><i /><b>{project.title.split(" ")[0]}</b></div>
+                <div className="system-map"><i /><i /><i /><i /><b>{project.title.split(" ")[0]}</b><span /><span /><span /></div>
                 <span className="visual-caption">SYSTEM VIEW · {project.number}</span>
               </div>
               <div className="project-copy">
@@ -260,7 +268,7 @@ export default function Home() {
 
       <section id="experience" className="scene experience-scene">
         <div className="experience-heading reveal">
-          <SceneLabel index="05">EXPERIENCE / MILESTONES</SceneLabel>
+          <SceneLabel index="04">EXPERIENCE / MILESTONES</SceneLabel>
           <h2>A path of<br /><em>making.</em></h2>
           <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Download résumé <Arrow down /></a>
         </div>
@@ -276,9 +284,8 @@ export default function Home() {
       </section>
 
       <section id="contact" className="scene contact-scene">
-        <div className="contact-rings" aria-hidden="true"><i /><i /><i /></div>
         <div className="contact-copy reveal">
-          <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
+          <SceneLabel index="05">THE NEXT CHAPTER</SceneLabel>
           <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
           <h2>Let&apos;s build<br /><em>something</em> together.</h2>
           <a className="primary-cta primary-cta--light" href="mailto:yobicod.4u@gmail.com"><span>Start a conversation</span><Arrow /></a>
