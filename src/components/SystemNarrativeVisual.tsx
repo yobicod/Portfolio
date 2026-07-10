@@ -22,6 +22,11 @@ export default function SystemNarrativeVisual({ project }: { project: Project })
       </div>
       <div className="narrative-canvas" aria-hidden="true">
         <div className="narrative-path" />
+        {project.visualKind === "knowledge" && (
+          <div className="narrative-flow">
+            <i className="narrative-flow__pulse" />
+          </div>
+        )}
         {nodes.map((node, index) => (
           <div className="narrative-node" data-node={index + 1} key={node}>
             <span>0{index + 1}</span>

@@ -1,18 +1,14 @@
-export type TechnologyCluster =
+export type TechnologyCategory =
+  | "languages"
   | "frontend"
   | "backend"
-  | "ai"
-  | "cloud";
-
-export type TechnologyPriority = "primary" | "secondary";
+  | "databases"
+  | "cloudDevOps";
 
 export interface Technology {
   id: string;
   name: string;
-  cluster: TechnologyCluster;
-  priority: TechnologyPriority;
+  category: TechnologyCategory;
   icon?: string;
-  usage: string;
-  relatedProject?: string;
-  relations: string[];
+  logoUrl?: string;
 }

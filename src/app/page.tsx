@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProjectChapter from "@/components/ProjectChapter";
+import SignaturePortrait from "@/components/SignaturePortrait";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 import { experience, projects } from "@/data/portfolio";
@@ -190,11 +191,8 @@ export default function Home() {
           </dl>
         </div>
 
-        <div className="world-note reveal reveal--late" aria-hidden="true">
-          <span>ATELIER / 01</span>
-          <b>Systems in motion</b>
-          <i>Scroll drives the camera</i>
-        </div>
+        <SignaturePortrait />
+
         <p className="scroll-cue">SCROLL TO BEGIN <span>↓</span></p>
       </section>
 
