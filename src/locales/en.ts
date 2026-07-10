@@ -17,8 +17,6 @@ export const en = {
     languageLabel: "Language",
     english: "English",
     thai: "Thai",
-    soundOn: "Sound on — disable ambient audio",
-    soundOff: "Sound off — enable ambient audio",
   },
   utility: {
     skipContent: "Skip to content",

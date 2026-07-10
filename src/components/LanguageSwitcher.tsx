@@ -1,14 +1,11 @@
 "use client";
 
 import { useTranslation } from "@/i18n/I18nProvider";
-import { useSound } from "@/components/SoundProvider";
 
 export default function LanguageSwitcher() {
   const { locale, setLocale, t } = useTranslation();
-  const { playEffect } = useSound();
   const switchLanguage = (nextLocale: "en" | "th") => {
     if (nextLocale === locale) return;
-    playEffect("language");
     setLocale(nextLocale);
   };
   return (

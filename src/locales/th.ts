@@ -19,8 +19,6 @@ export const th = {
     languageLabel: "ภาษา",
     english: "อังกฤษ",
     thai: "ไทย",
-    soundOn: "เปิดเสียงอยู่ — ปิดเสียงบรรยากาศ",
-    soundOff: "ปิดเสียงอยู่ — เปิดเสียงบรรยากาศ",
   },
   utility: {
     skipContent: "ข้ามไปยังเนื้อหา",

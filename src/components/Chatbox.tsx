@@ -6,7 +6,6 @@ import { useTopic } from "@/context/TopicContext";
 import type { RichMessage, RichBotResponse } from "@/types/chat.types";
 import { RichBubble } from "@/components/RichBubble";
 import Celebrate from "@/components/Celebrate";
-import { fadeOutSound } from "@/utils/utils";
 
 /** Typing animation speed in ms (lower = faster) */
 const TYPING_SPEED_MS = 30;
@@ -30,39 +29,14 @@ const Chatbox = memo(function Chatbox() {
   const [isCelebrate, setIsCelebrate] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingAudioRef = useRef<HTMLAudioElement>(null);
-
   const triggerCelebrate = useCallback(() => {
     setIsCelebrate(true);
-    const lofiAudio = new Audio("/everyone_celebrate_lofi.mp3");
-    lofiAudio.currentTime = 0;
-    lofiAudio.play();
-    fadeOutSound(lofiAudio);
-  }, []);
-
-  const playTypingSound = useCallback(() => {
-    if (!typingAudioRef.current) {
-      typingAudioRef.current = new Audio("/typing_loop.mp3");
-      typingAudioRef.current.loop = true;
-    }
-    typingAudioRef.current.currentTime = 0;
-    typingAudioRef.current.play().catch(() => {
-      // Autoplay blocked - silent fail
-    });
-  }, []);
-
-  const stopTypingSound = useCallback(() => {
-    if (typingAudioRef.current) {
-      typingAudioRef.current.pause();
-      typingAudioRef.current.currentTime = 0;
-    }
   }, []);
 
   const stopTyping = useCallback(() => {
     setIsDisableInput(false);
     setIsTyping(false);
-    stopTypingSound();
-  }, [setIsTyping, stopTypingSound]);
+  }, [setIsTyping]);
 
   /** Remove the pending typing bubble before inserting a real response */
   const removeTypingBubble = useCallback(() => {
@@ -161,15 +135,13 @@ const Chatbox = memo(function Chatbox() {
       setInput("");
       setIsDisableInput(true);
       setIsTyping(true);
-      playTypingSound();
-
       const answer = botService.answer(value);
 
       setTimeout(() => {
         processBotReply(answer);
       }, 500);
     },
-    [playTypingSound, processBotReply, setIsTyping],
+    [processBotReply, setIsTyping],
   );
 
   const handleSend = useCallback(() => {
