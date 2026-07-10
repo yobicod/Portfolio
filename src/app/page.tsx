@@ -8,14 +8,16 @@ import MotionReveal from "@/components/MotionReveal";
 import SignaturePortrait from "@/components/SignaturePortrait";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import ExperienceLoader from "@/components/ExperienceLoader";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
-import { experience, projects } from "@/data/portfolio";
+import { I18nProvider, useTranslation } from "@/i18n/I18nProvider";
 
 const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
   ssr: false,
 });
 
 const chapters = ["hero", "approach", "stack", "work", "experience", "contact"] as const;
+const navigationChapters = ["approach", "stack", "work", "experience", "contact"] as const;
 
 const CONTACT_EMAIL = "yobicod.4u@gmail.com";
 
@@ -82,6 +84,7 @@ function useJourney() {
 }
 
 function Navigation({ active }: { active: string }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -124,23 +127,24 @@ function Navigation({ active }: { active: string }) {
 
   return (
     <header className={active === "hero" ? "nav-shell" : "nav-shell is-scrolled"} ref={headerRef}>
-      <a className="brand" href="#hero" aria-label="Visal Suwanarat, home" onClick={() => closeMenu()}>
+      <a className="brand" href="#hero" aria-label={t.nav.brandLabel} onClick={() => closeMenu()}>
         <b>V</b><span>VISAL<br />SUWANARAT</span>
       </a>
-      <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
-        {chapters.slice(1).map((chapter, index) => (
+      <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label={t.nav.primaryLabel}>
+        {navigationChapters.map((chapter, index) => (
           <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => closeMenu()}>
-            <span>0{index + 2}</span>{chapter}
+            <span>0{index + 2}</span>{t.nav[chapter]}
           </a>
         ))}
       </nav>
-      <a className="nav-status" href="#contact" onClick={() => closeMenu()}><i /> AVAILABLE FOR SELECT PROJECTS</a>
+      <a className="nav-status" href="#contact" onClick={() => closeMenu()}><i /> {t.nav.availability}</a>
+      <LanguageSwitcher />
       <button
         type="button"
         className="menu-toggle"
         ref={toggleRef}
         onClick={() => open ? closeMenu(true) : setOpen(true)}
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? t.nav.menuClose : t.nav.menuOpen}
         aria-controls="primary-navigation"
         aria-expanded={open}
       >
@@ -150,7 +154,8 @@ function Navigation({ active }: { active: string }) {
   );
 }
 
-export default function Home() {
+function PortfolioContent() {
+  const { t } = useTranslation();
   const { active, progressRef } = useJourney();
   const [copyStatus, setCopyStatus] = useState("");
   const copyStatusTimer = useRef<number | undefined>(undefined);
@@ -160,9 +165,9 @@ export default function Home() {
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
-      setCopyStatus("Email copied");
+      setCopyStatus(t.contact.copied);
     } catch {
-      setCopyStatus("Copy unavailable — select the email address");
+      setCopyStatus(t.contact.copyUnavailable);
     }
     window.clearTimeout(copyStatusTimer.current);
     copyStatusTimer.current = window.setTimeout(() => setCopyStatus(""), 2600);
@@ -172,53 +177,50 @@ export default function Home() {
     <main className="experience" data-chapter={active}>
       <ExperienceLoader />
       <div className="skip-links">
-        <a className="skip-link" href="#approach">Skip to content</a>
-        <a className="skip-link" href="#work">Skip to selected work</a>
+        <a className="skip-link" href="#approach">{t.utility.skipContent}</a>
+        <a className="skip-link" href="#work">{t.utility.skipWork}</a>
       </div>
       <WebGLAtmosphere />
       <div className="noise" aria-hidden="true" />
       <div className="vignette" aria-hidden="true" />
       <Navigation active={active} />
 
-      <nav className="journey-progress" ref={progressRef} aria-label="Page journey">
+      <nav className="journey-progress" ref={progressRef} aria-label={t.utility.journey}>
         <span aria-hidden="true">01</span><div aria-hidden="true"><i /></div><span aria-hidden="true">06</span>
-        <a className="journey-progress__target journey-progress__target--start" href="#hero"><span className="sr-only">Back to introduction</span></a>
-        <a className="journey-progress__target journey-progress__target--end" href="#contact"><span className="sr-only">Jump to contact</span></a>
+        <a className="journey-progress__target journey-progress__target--start" href="#hero"><span className="sr-only">{t.utility.journeyStart}</span></a>
+        <a className="journey-progress__target journey-progress__target--end" href="#contact"><span className="sr-only">{t.utility.journeyEnd}</span></a>
       </nav>
 
       <section id="hero" className="scene hero-scene is-visible" aria-labelledby="hero-title">
         <MotionReveal className="hero-copy" y={34}>
-          <SceneLabel index="01">FULL-STACK ENGINEER · AI &amp; AUTOMATION</SceneLabel>
-          <h1 id="hero-title">Software<br /><em>Engineer.</em></h1>
-          <p>I build intelligent products, scalable systems, and thoughtful automation with production craftsmanship from interface to infrastructure.</p>
+          <SceneLabel index="01">{t.hero.label}</SceneLabel>
+          <h1 id="hero-title">{t.hero.title}<br /><em>{t.hero.titleEmphasis}</em></h1>
+          <p>{t.hero.description}</p>
           <div className="hero-actions">
-            <MagneticLink className="primary-cta" href="#work"><span>Explore selected work</span><Arrow down /></MagneticLink>
-            <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">Résumé <Arrow /></a>
+            <MagneticLink className="primary-cta" href="#work"><span>{t.hero.explore}</span><Arrow down /></MagneticLink>
+            <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.hero.resume} <Arrow /></a>
           </div>
           <dl className="hero-facts">
-            <div><dt>Focus</dt><dd>AI products</dd></div>
-            <div><dt>Craft</dt><dd>Full stack</dd></div>
-            <div><dt>Base</dt><dd>Bangkok · TH</dd></div>
+            <div><dt>{t.hero.focus}</dt><dd>{t.hero.focusValue}</dd></div>
+            <div><dt>{t.hero.craft}</dt><dd>{t.hero.craftValue}</dd></div>
+            <div><dt>{t.hero.base}</dt><dd>{t.hero.baseValue}</dd></div>
           </dl>
         </MotionReveal>
 
         <SignaturePortrait />
 
-        <p className="scroll-cue">SCROLL TO BEGIN <span>↓</span></p>
+        <p className="scroll-cue">{t.hero.scroll} <span>↓</span></p>
       </section>
 
       <section id="approach" className="scene about-scene" aria-labelledby="approach-title">
         <MotionReveal className="about-heading">
-          <SceneLabel index="02">THE PRACTICE / FULL SYSTEM VIEW</SceneLabel>
-          <h2 id="approach-title">Clarity in<br />every <em>layer.</em></h2>
+          <SceneLabel index="02">{t.approach.label}</SceneLabel>
+          <h2 id="approach-title">{t.approach.title}<br /><em>{t.approach.titleEmphasis}</em></h2>
         </MotionReveal>
         <MotionReveal className="about-copy" delay={0.12}>
-          <p className="about-lead">A practical process for turning complexity into calm, useful software—always guided by <em>less, but better.</em></p>
+          <p className="about-lead">{t.approach.lead} <em>{t.approach.leadEmphasis}</em></p>
           <ol className="practice-steps">
-            <li><span>01</span><div><strong>Frame</strong><p>Define the real problem and the outcome that matters.</p></div></li>
-            <li><span>02</span><div><strong>Architect</strong><p>Shape a system that remains clear as it scales.</p></div></li>
-            <li><span>03</span><div><strong>Ship</strong><p>Build the full experience with production discipline.</p></div></li>
-            <li><span>04</span><div><strong>Measure</strong><p>Learn from real use and refine what creates value.</p></div></li>
+            {t.approach.steps.map((step, index) => <li key={step.title}><span>0{index + 1}</span><div><strong>{step.title}</strong><p>{step.description}</p></div></li>)}
           </ol>
         </MotionReveal>
       </section>
@@ -229,24 +231,24 @@ export default function Home() {
 
       <section id="work" className="scene work-scene" aria-labelledby="work-title">
         <MotionReveal className="work-intro">
-          <SceneLabel index="04">SELECTED SYSTEMS / 2023—2026</SceneLabel>
-          <h2 id="work-title">Work with<br /><em>purpose.</em></h2>
-          <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
+          <SceneLabel index="04">{t.work.label}</SceneLabel>
+          <h2 id="work-title">{t.work.title}<br /><em>{t.work.titleEmphasis}</em></h2>
+          <p>{t.work.description}</p>
         </MotionReveal>
         <div className="project-list">
-          {projects.map((project, index) => <ProjectChapter project={project} featured={index === 0} key={project.id} />)}
+          {t.work.projects.map((project, index) => <ProjectChapter project={project} featured={index === 0} key={project.id} />)}
         </div>
-        <a className="work-link" href={GITHUB_URL} target="_blank" rel="noreferrer"><span>Explore the code archive</span><Arrow /></a>
+        <a className="work-link" href={GITHUB_URL} target="_blank" rel="noreferrer"><span>{t.work.archive}</span><Arrow /></a>
       </section>
 
       <section id="experience" className="scene experience-scene" aria-labelledby="experience-title">
         <MotionReveal className="experience-heading">
-          <SceneLabel index="05">EXPERIENCE / MILESTONES</SceneLabel>
-          <h2 id="experience-title">A path of<br /><em>making.</em></h2>
-          <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">Download résumé <Arrow down /></a>
+          <SceneLabel index="05">{t.experience.label}</SceneLabel>
+          <h2 id="experience-title">{t.experience.title}<br /><em>{t.experience.titleEmphasis}</em></h2>
+          <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.experience.resume} <Arrow down /></a>
         </MotionReveal>
         <MotionReveal className="timeline" delay={0.12}>
-          {experience.map(({ date, role, company, description }, index) => (
+          {t.experience.entries.map(({ date, role, company, description }, index) => (
             <article className="timeline-item" key={`${date}-${role}`}>
               <span className="timeline-number">0{index + 1}</span>
               <time>{date}</time>
@@ -258,22 +260,26 @@ export default function Home() {
 
       <section id="contact" className="scene contact-scene" aria-labelledby="contact-title">
         <MotionReveal className="contact-copy" y={32}>
-          <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
-          <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
-          <h2 id="contact-title">Let&apos;s build<br /><em>something</em> together.</h2>
-          <MagneticLink className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>Start a conversation</span><Arrow /></MagneticLink>
+          <SceneLabel index="06">{t.contact.label}</SceneLabel>
+          <p className="contact-kicker">{t.contact.kicker}</p>
+          <h2 id="contact-title">{t.contact.title}<br /><em>{t.contact.titleEmphasis}</em> {t.contact.titleEnd}</h2>
+          <MagneticLink className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>{t.contact.start}</span><Arrow /></MagneticLink>
           <div className="contact-options">
             <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-            <button type="button" onClick={copyEmail}>Copy email</button>
-            <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LinkedIn ↗</a>
+            <button type="button" onClick={copyEmail}>{t.contact.copy}</button>
+            <a href={LINKEDIN_URL} target="_blank" rel="noreferrer">{t.contact.linkedIn}</a>
           </div>
           <p className="copy-status" aria-live="polite">{copyStatus}</p>
         </MotionReveal>
         <footer>
-          <div><span>VISAL SUWANARAT © 2026</span><span>DESIGNED &amp; ENGINEERED WITH INTENT</span></div>
-          <nav aria-label="Social links"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GITHUB ↗</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">LINKEDIN ↗</a><a href="#hero">BACK TO TOP ↑</a></nav>
+          <div><span>{t.footer.copyright}</span><span>{t.footer.intent}</span></div>
+          <nav aria-label={t.utility.social}><a href={GITHUB_URL} target="_blank" rel="noreferrer">{t.footer.github}</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">{t.footer.linkedIn}</a><a href="#hero">{t.footer.top}</a></nav>
         </footer>
       </section>
     </main>
   );
+}
+
+export default function Home() {
+  return <I18nProvider><PortfolioContent /></I18nProvider>;
 }

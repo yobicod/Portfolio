@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { DM_Mono, Manrope } from "next/font/google";
+import { DM_Mono, Manrope, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { en } from "@/locales/en";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -13,14 +14,19 @@ const dmMono = DM_Mono({
   weight: ["300", "400", "500"],
 });
 
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-thai",
+  subsets: ["thai"],
+  weight: ["300", "400", "500", "600"],
+});
+
 export const metadata: Metadata = {
-  title: "Visal Suwanarat — Software Engineer & AI Builder",
-  description:
-    "Portfolio of Visal Suwanarat, a full-stack engineer and creative technologist building thoughtful AI-powered products.",
+  title: en.metadata.title,
+  description: en.metadata.description,
   keywords: ["Visal Suwanarat", "full-stack engineer", "AI engineer", "product engineer", "Bangkok"],
   openGraph: {
-    title: "Visal Suwanarat — Software Engineer & AI Builder",
-    description: "Thoughtful AI-powered products, scalable systems, and automation.",
+    title: en.metadata.title,
+    description: en.metadata.description,
     type: "website",
   },
 };
@@ -37,7 +43,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#060708" />
       </head>
       <body
-        className={`${manrope.variable} ${dmMono.variable} antialiased`}
+        className={`${manrope.variable} ${dmMono.variable} ${notoSansThai.variable} antialiased`}
         suppressHydrationWarning
       >
         {children}

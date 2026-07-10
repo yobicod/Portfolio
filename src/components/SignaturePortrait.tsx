@@ -3,10 +3,12 @@
 import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { type PointerEvent, useCallback } from "react";
+import { useTranslation } from "@/i18n/I18nProvider";
 
 const PORTRAIT_SRC = "/visal.png";
 
 export default function SignaturePortrait() {
+  const { t } = useTranslation();
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
   const springX = useSpring(pointerX, { stiffness: 85, damping: 18, mass: 0.45 });
@@ -31,7 +33,7 @@ export default function SignaturePortrait() {
       initial={{ opacity: 0, scale: 0.9, y: 28 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 1.05, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-      aria-label="Interactive portrait of Visal Suwanarat"
+      aria-label={t.portrait.ariaLabel}
     >
       <div className="portrait-artwork__aura" aria-hidden="true" />
       <div className="portrait-artwork__orbital portrait-artwork__orbital--one" aria-hidden="true" />
@@ -52,9 +54,9 @@ export default function SignaturePortrait() {
         <circle cx="109" cy="579" r="4" /><circle cx="436" cy="579" r="4" />
       </svg>
 
-      <span className="portrait-artwork__tag portrait-artwork__tag--top">VSL / 2026</span>
-      <span className="portrait-artwork__tag portrait-artwork__tag--right">SYSTEM<br />THINKING</span>
-      <span className="portrait-artwork__tag portrait-artwork__tag--bottom">BKK · TH</span>
+      <span className="portrait-artwork__tag portrait-artwork__tag--top">{t.portrait.top}</span>
+      <span className="portrait-artwork__tag portrait-artwork__tag--right">{t.portrait.right}</span>
+      <span className="portrait-artwork__tag portrait-artwork__tag--bottom">{t.portrait.bottom}</span>
       <span className="portrait-artwork__signal portrait-artwork__signal--one" aria-hidden="true" />
       <span className="portrait-artwork__signal portrait-artwork__signal--two" aria-hidden="true" />
     </motion.div>

@@ -1,20 +1,17 @@
-import type { Project } from "@/types/portfolio";
+import { useTranslation } from "@/i18n/I18nProvider";
+import type { Dictionary } from "@/i18n";
 
-const knowledgeNodes = ["Sources", "Retrieval", "LLM", "Answer"];
-const operationsNodes = ["Intake", "Service", "Queue", "Workspace"];
-const cloudNodes = ["Assets", "Field", "Sync", "Teams"];
+type Project = Dictionary["work"]["projects"][number];
 
 export default function SystemNarrativeVisual({ project }: { project: Project }) {
-  const nodes = project.visualKind === "knowledge"
-    ? knowledgeNodes
-    : project.visualKind === "operations"
-      ? operationsNodes
-      : cloudNodes;
+  const { t } = useTranslation();
+  const visualKind = project.visualKind as keyof typeof t.work.visuals;
+  const visual = t.work.visuals[visualKind];
 
   return (
     <figure
       className={`system-narrative system-narrative--${project.visualKind}`}
-      aria-label={`${project.title} explanatory system view`}
+      aria-label={`${project.title} — ${t.work.visualCaption}`}
     >
       <div className="narrative-topline">
         <span>{project.category}</span>
@@ -22,12 +19,12 @@ export default function SystemNarrativeVisual({ project }: { project: Project })
       </div>
       <div className="narrative-canvas" aria-hidden="true">
         <div className="narrative-path" />
-        {project.visualKind === "knowledge" && (
+        {visualKind === "knowledge" && (
           <div className="narrative-flow">
             <i className="narrative-flow__pulse" />
           </div>
         )}
-        {nodes.map((node, index) => (
+        {visual.nodes.map((node, index) => (
           <div className="narrative-node" data-node={index + 1} key={node}>
             <span>0{index + 1}</span>
             <strong>{node}</strong>
@@ -35,10 +32,10 @@ export default function SystemNarrativeVisual({ project }: { project: Project })
         ))}
         <div className="narrative-core">
           <i />
-          <span>{project.visualKind === "knowledge" ? "Grounded context" : project.visualKind === "operations" ? "Shared state" : "Cloud core"}</span>
+          <span>{visual.core}</span>
         </div>
       </div>
-      <figcaption>EXPLANATORY SYSTEM VIEW · {project.number}</figcaption>
+      <figcaption>{t.work.visualCaption} · {project.number}</figcaption>
     </figure>
   );
 }

@@ -3,10 +3,14 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { type PointerEvent, useCallback } from "react";
 import SystemNarrativeVisual from "@/components/SystemNarrativeVisual";
-import type { Project } from "@/types/portfolio";
+import { useTranslation } from "@/i18n/I18nProvider";
+import type { Dictionary } from "@/i18n";
+
+type Project = Dictionary["work"]["projects"][number];
 
 export default function ProjectChapter({ project, featured = false }: { project: Project; featured?: boolean }) {
   const reducedMotion = useReducedMotion();
+  const { t } = useTranslation();
   const handlePointerMove = useCallback((event: PointerEvent<HTMLElement>) => {
     if (reducedMotion || event.pointerType === "touch") return;
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -26,16 +30,16 @@ export default function ProjectChapter({ project, featured = false }: { project:
     >
       <SystemNarrativeVisual project={project} />
       <div className="project-copy">
-        <span className="project-index">CASE {project.number} · {project.category}</span>
+        <span className="project-index">{t.work.caseLabel} {project.number} · {project.category}</span>
         <h3>{project.title}</h3>
         <p className="project-statement">{project.problem}</p>
         <p>{project.description}</p>
         <dl className="project-evidence">
-          <div><dt>Responsibility</dt><dd>{project.responsibility}</dd></div>
-          <div><dt>System</dt><dd>{project.systemApproach}</dd></div>
-          <div><dt>Impact</dt><dd>{project.impact}</dd></div>
+          <div><dt>{t.work.responsibility}</dt><dd>{project.responsibility}</dd></div>
+          <div><dt>{t.work.system}</dt><dd>{project.systemApproach}</dd></div>
+          <div><dt>{t.work.impact}</dt><dd>{project.impact}</dd></div>
         </dl>
-        <div className="project-stack" aria-label={`${project.title} technologies`}>
+        <div className="project-stack" aria-label={`${project.title} ${t.work.technologies}`}>
           {project.stack.map((item) => <span key={item}>{item}</span>)}
         </div>
       </div>

@@ -5,12 +5,13 @@ import type { CSSProperties } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   technologies,
-  technologyCategoryLabels,
   technologyCategoryOrder,
 } from "@/data/technologyStack";
+import { useTranslation } from "@/i18n/I18nProvider";
 
 export default function TechnologyEcosystem() {
   const reducedMotion = useReducedMotion();
+  const { t } = useTranslation();
   return (
     <div className="technology-stage">
       <motion.header
@@ -21,15 +22,15 @@ export default function TechnologyEcosystem() {
         transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
       >
         <div>
-          <p className="scene-label"><span>03</span>TECH STACK / TOOLKIT</p>
-          <h2 id="stack-title">Tools for<br /><em>shipping.</em></h2>
+          <p className="scene-label"><span>03</span>{t.stack.label}</p>
+          <h2 id="stack-title">{t.stack.title}<br /><em>{t.stack.titleEmphasis}</em></h2>
         </div>
         <p className="technology-positioning">
-          A focused, production-ready stack for building software across every layer.
+          {t.stack.description}
         </p>
       </motion.header>
 
-      <div className="ecosystem-map" aria-label="Technology stack">
+      <div className="ecosystem-map" aria-label={t.stack.ariaLabel}>
         {technologyCategoryOrder.map((category, categoryIndex) => {
           const items = technologies.filter((item) => item.category === category);
           return (
@@ -45,7 +46,7 @@ export default function TechnologyEcosystem() {
             >
               <header>
                 <span>0{categoryIndex + 1}</span>
-                <h3 id={`category-${category}`}>{technologyCategoryLabels[category]}</h3>
+                <h3 id={`category-${category}`}>{t.stack.categories[category]}</h3>
               </header>
               <ul className="technology-list">
                 {items.map((item) => (
