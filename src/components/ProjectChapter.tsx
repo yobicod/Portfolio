@@ -1,15 +1,24 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { type PointerEvent, useCallback } from "react";
 import SystemNarrativeVisual from "@/components/SystemNarrativeVisual";
 import type { Project } from "@/types/portfolio";
 
 export default function ProjectChapter({ project, featured = false }: { project: Project; featured?: boolean }) {
   const reducedMotion = useReducedMotion();
+  const handlePointerMove = useCallback((event: PointerEvent<HTMLElement>) => {
+    if (reducedMotion || event.pointerType === "touch") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--spotlight-x", `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+    event.currentTarget.style.setProperty("--spotlight-y", `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+  }, [reducedMotion]);
   return (
     <motion.article
       className={featured ? "project-chapter project-chapter--featured" : "project-chapter"}
       id={project.id}
+      tabIndex={0}
+      onPointerMove={handlePointerMove}
       initial={reducedMotion ? false : { opacity: 0, y: 36 }}
       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.16, margin: "0px 0px -6%" }}

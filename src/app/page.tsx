@@ -7,6 +7,7 @@ import MagneticLink from "@/components/MagneticLink";
 import MotionReveal from "@/components/MotionReveal";
 import SignaturePortrait from "@/components/SignaturePortrait";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
+import ExperienceLoader from "@/components/ExperienceLoader";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 import { experience, projects } from "@/data/portfolio";
 
@@ -133,7 +134,7 @@ function Navigation({ active }: { active: string }) {
           </a>
         ))}
       </nav>
-      <div className="nav-status"><i /> AVAILABLE FOR SELECT PROJECTS</div>
+      <a className="nav-status" href="#contact" onClick={() => closeMenu()}><i /> AVAILABLE FOR SELECT PROJECTS</a>
       <button
         type="button"
         className="menu-toggle"
@@ -152,6 +153,9 @@ function Navigation({ active }: { active: string }) {
 export default function Home() {
   const { active, progressRef } = useJourney();
   const [copyStatus, setCopyStatus] = useState("");
+  const copyStatusTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(copyStatusTimer.current), []);
 
   const copyEmail = async () => {
     try {
@@ -160,10 +164,13 @@ export default function Home() {
     } catch {
       setCopyStatus("Copy unavailable — select the email address");
     }
+    window.clearTimeout(copyStatusTimer.current);
+    copyStatusTimer.current = window.setTimeout(() => setCopyStatus(""), 2600);
   };
 
   return (
     <main className="experience" data-chapter={active}>
+      <ExperienceLoader />
       <div className="skip-links">
         <a className="skip-link" href="#approach">Skip to content</a>
         <a className="skip-link" href="#work">Skip to selected work</a>
@@ -173,18 +180,20 @@ export default function Home() {
       <div className="vignette" aria-hidden="true" />
       <Navigation active={active} />
 
-      <aside className="journey-progress" ref={progressRef} aria-hidden="true">
-        <span>01</span><div><i /></div><span>06</span>
-      </aside>
+      <nav className="journey-progress" ref={progressRef} aria-label="Page journey">
+        <span aria-hidden="true">01</span><div aria-hidden="true"><i /></div><span aria-hidden="true">06</span>
+        <a className="journey-progress__target journey-progress__target--start" href="#hero"><span className="sr-only">Back to introduction</span></a>
+        <a className="journey-progress__target journey-progress__target--end" href="#contact"><span className="sr-only">Jump to contact</span></a>
+      </nav>
 
-      <section id="hero" className="scene hero-scene is-visible">
+      <section id="hero" className="scene hero-scene is-visible" aria-labelledby="hero-title">
         <MotionReveal className="hero-copy" y={34}>
           <SceneLabel index="01">FULL-STACK ENGINEER · AI &amp; AUTOMATION</SceneLabel>
-          <h1>Software<br /><em>Engineer.</em></h1>
+          <h1 id="hero-title">Software<br /><em>Engineer.</em></h1>
           <p>I build intelligent products, scalable systems, and thoughtful automation with production craftsmanship from interface to infrastructure.</p>
           <div className="hero-actions">
             <MagneticLink className="primary-cta" href="#work"><span>Explore selected work</span><Arrow down /></MagneticLink>
-            <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Résumé <Arrow /></a>
+            <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">Résumé <Arrow /></a>
           </div>
           <dl className="hero-facts">
             <div><dt>Focus</dt><dd>AI products</dd></div>
@@ -198,10 +207,10 @@ export default function Home() {
         <p className="scroll-cue">SCROLL TO BEGIN <span>↓</span></p>
       </section>
 
-      <section id="approach" className="scene about-scene">
+      <section id="approach" className="scene about-scene" aria-labelledby="approach-title">
         <MotionReveal className="about-heading">
           <SceneLabel index="02">THE PRACTICE / FULL SYSTEM VIEW</SceneLabel>
-          <h2>Clarity in<br />every <em>layer.</em></h2>
+          <h2 id="approach-title">Clarity in<br />every <em>layer.</em></h2>
         </MotionReveal>
         <MotionReveal className="about-copy" delay={0.12}>
           <p className="about-lead">A practical process for turning complexity into calm, useful software—always guided by <em>less, but better.</em></p>
@@ -214,14 +223,14 @@ export default function Home() {
         </MotionReveal>
       </section>
 
-      <section id="stack" className="scene technology-scene">
+      <section id="stack" className="scene technology-scene" aria-labelledby="stack-title">
         <TechnologyEcosystem />
       </section>
 
-      <section id="work" className="scene work-scene">
+      <section id="work" className="scene work-scene" aria-labelledby="work-title">
         <MotionReveal className="work-intro">
           <SceneLabel index="04">SELECTED SYSTEMS / 2023—2026</SceneLabel>
-          <h2>Work with<br /><em>purpose.</em></h2>
+          <h2 id="work-title">Work with<br /><em>purpose.</em></h2>
           <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
         </MotionReveal>
         <div className="project-list">
@@ -230,11 +239,11 @@ export default function Home() {
         <a className="work-link" href={GITHUB_URL} target="_blank" rel="noreferrer"><span>Explore the code archive</span><Arrow /></a>
       </section>
 
-      <section id="experience" className="scene experience-scene">
+      <section id="experience" className="scene experience-scene" aria-labelledby="experience-title">
         <MotionReveal className="experience-heading">
           <SceneLabel index="05">EXPERIENCE / MILESTONES</SceneLabel>
-          <h2>A path of<br /><em>making.</em></h2>
-          <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Download résumé <Arrow down /></a>
+          <h2 id="experience-title">A path of<br /><em>making.</em></h2>
+          <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">Download résumé <Arrow down /></a>
         </MotionReveal>
         <MotionReveal className="timeline" delay={0.12}>
           {experience.map(({ date, role, company, description }, index) => (
@@ -247,11 +256,11 @@ export default function Home() {
         </MotionReveal>
       </section>
 
-      <section id="contact" className="scene contact-scene">
+      <section id="contact" className="scene contact-scene" aria-labelledby="contact-title">
         <MotionReveal className="contact-copy" y={32}>
           <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
           <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
-          <h2>Let&apos;s build<br /><em>something</em> together.</h2>
+          <h2 id="contact-title">Let&apos;s build<br /><em>something</em> together.</h2>
           <MagneticLink className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>Start a conversation</span><Arrow /></MagneticLink>
           <div className="contact-options">
             <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>

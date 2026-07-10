@@ -22,7 +22,7 @@ export default function TechnologyEcosystem() {
       >
         <div>
           <p className="scene-label"><span>03</span>TECH STACK / TOOLKIT</p>
-          <h2>Tools for<br /><em>shipping.</em></h2>
+          <h2 id="stack-title">Tools for<br /><em>shipping.</em></h2>
         </div>
         <p className="technology-positioning">
           A focused, production-ready stack for building software across every layer.

@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
+import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { type PointerEvent, useCallback } from "react";
 
@@ -39,10 +39,10 @@ export default function SignaturePortrait() {
       <div className="portrait-artwork__grain" aria-hidden="true" />
 
       <motion.div className="portrait-artwork__echo" style={{ x: translateX, y: translateY }} aria-hidden="true">
-        <img src={PORTRAIT_SRC} alt="" />
+        <Image src={PORTRAIT_SRC} alt="" width={1254} height={1254} sizes="(max-width: 760px) 21rem, 36rem" />
       </motion.div>
       <motion.div className="portrait-artwork__portrait" style={{ x: translateX, y: translateY }}>
-        <img src={PORTRAIT_SRC} alt="Visal Suwanarat" />
+        <Image src={PORTRAIT_SRC} alt="Visal Suwanarat" width={1254} height={1254} priority sizes="(max-width: 760px) 21rem, 36rem" />
       </motion.div>
 
       <svg className="portrait-artwork__frame" viewBox="0 0 560 640" aria-hidden="true">
