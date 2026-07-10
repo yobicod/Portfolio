@@ -12,6 +12,7 @@ precision highp float;
 uniform vec2 uResolution;
 uniform float uTime;
 uniform float uScroll;
+uniform float uStackProgress;
 
 #define FAR 42.0
 #define STEPS 54
@@ -59,6 +60,16 @@ vec2 mapScene(vec3 p){
   float nodes = max(sdSphere(node, .045), sdSphere(core, 2.35));
   hit = joinScene(hit, vec2(nodes, 5.0));
 
+  // The technology chamber: illuminated rails and panels frame the system core.
+  vec3 chamber = p - vec3(0.0, .05, -10.8);
+  float chamberPanel = sdBox(vec3(abs(chamber.x) - 3.34, chamber.y, chamber.z), vec3(.045, 1.22, 3.1));
+  float chamberRails = min(
+    sdBox(vec3(abs(chamber.x) - 3.12, abs(chamber.y) - 1.27, chamber.z), vec3(.24, .025, 3.28)),
+    sdBox(vec3(abs(chamber.x) - 3.12, chamber.y, mod(chamber.z + .7, 1.4) - .7), vec3(.24, 1.22, .018))
+  );
+  hit = joinScene(hit, vec2(chamberPanel, 2.0));
+  hit = joinScene(hit, vec2(chamberRails, 4.0));
+
   // Project monoliths become architectural exhibits, not detached cards.
   float exhibit = min(
     sdBox(p - vec3(-2.65, -.05, -17.0), vec3(1.05, 1.38, .08)),
@@ -99,14 +110,19 @@ mat3 cameraBasis(vec3 ro, vec3 target){
 void main(){
   vec2 uv = (gl_FragCoord.xy - .5 * uResolution.xy) / uResolution.y;
   float t = uScroll * uScroll * (3.0 - 2.0 * uScroll);
-  float chapter = t * 5.0;
+  float chapter = t * 6.0;
+  float stackHold = smoothstep(.08, .34, uStackProgress) * (1.0 - smoothstep(.72, .96, uStackProgress));
 
   vec3 ro = vec3(
     sin(chapter * 1.82) * .44,
     .18 + sin(chapter * 1.13) * .11,
     mix(8.2, -31.5, t)
   );
+  ro.x = mix(ro.x, -.62, stackHold * .68);
+  ro.y += stackHold * .08;
+  ro.z += stackHold * 1.15;
   float lookX = sin((chapter + .35) * 1.82) * .62;
+  lookX = mix(lookX, .48, stackHold * .72);
   vec3 target = ro + vec3(lookX, -.08 + sin(chapter * .7) * .05, -3.6);
   vec3 rd = cameraBasis(ro, target) * normalize(vec3(uv, 1.18));
 
@@ -136,11 +152,11 @@ void main(){
     else if(material < 2.5) base = vec3(.075, .085, .098);
     else if(material < 3.5) base = vec3(.11, .105, .095);
     else if(material < 4.5) base = vec3(.055, .23, .48);
-    else base = vec3(.18, .46, .95);
+    else base = mix(vec3(.18, .46, .95), vec3(.055, .15, .32), stackHold * .9);
 
     color = base * (.14 + diffuse * .72 * shadow);
     color += vec3(.12, .28, .55) * rim * .18;
-    if(material > 3.5) color += base * (material > 4.5 ? 1.5 : .45);
+    if(material > 3.5) color += base * (material > 4.5 ? mix(1.35, .35, stackHold) : mix(.45, .25, stackHold));
 
     // Fine floor lines establish scale without particle noise.
     if(material < 1.5){
@@ -222,15 +238,23 @@ export default function WebGLAtmosphere() {
     const resolution = gl.getUniformLocation(program, "uResolution");
     const time = gl.getUniformLocation(program, "uTime");
     const scroll = gl.getUniformLocation(program, "uScroll");
+    const stackProgress = gl.getUniformLocation(program, "uStackProgress");
     let frame = 0;
     let visible = !document.hidden;
     let targetProgress = 0;
     let smoothProgress = 0;
+    let targetStackProgress = 0;
+    let smoothStackProgress = 0;
     let lastFrame = 0;
 
     const readProgress = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       targetProgress = max > 0 ? window.scrollY / max : 0;
+      const stack = document.getElementById("stack");
+      if (stack) {
+        const bounds = stack.getBoundingClientRect();
+        targetStackProgress = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (bounds.height + window.innerHeight)));
+      }
       if (reducedMotion.matches) draw(performance.now());
     };
 
@@ -249,15 +273,20 @@ export default function WebGLAtmosphere() {
       smoothProgress = reducedMotion.matches
         ? targetProgress
         : smoothProgress + (targetProgress - smoothProgress) * .055;
+      smoothStackProgress = reducedMotion.matches
+        ? targetStackProgress
+        : smoothStackProgress + (targetStackProgress - smoothStackProgress) * .06;
       gl.uniform2f(resolution, canvas.width, canvas.height);
       gl.uniform1f(time, reducedMotion.matches ? 0 : now * .001);
       gl.uniform1f(scroll, smoothProgress);
+      gl.uniform1f(stackProgress, smoothStackProgress);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
     const render = (now: number) => {
       if (!visible || reducedMotion.matches) return;
-      const cameraMoving = Math.abs(targetProgress - smoothProgress) > .00008;
+      const cameraMoving = Math.abs(targetProgress - smoothProgress) > .00008
+        || Math.abs(targetStackProgress - smoothStackProgress) > .00008;
       // Render camera travel near 60 FPS, then idle at 12 FPS to avoid wasting GPU cycles.
       if (now - lastFrame > (cameraMoving ? 15 : 80)) {
         draw(now);

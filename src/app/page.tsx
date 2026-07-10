@@ -2,20 +2,14 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 
 const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
   ssr: false,
 });
 
-const chapters = ["hero", "approach", "work", "experience", "contact"] as const;
-
-const capabilities = [
-  { number: "01", title: "Product interfaces", detail: "React · Next.js · TypeScript · Motion" },
-  { number: "02", title: "Reliable systems", detail: "Node.js · Go · PostgreSQL · Redis" },
-  { number: "03", title: "Cloud delivery", detail: "AWS · GCP · Azure · Terraform" },
-  { number: "04", title: "Applied intelligence", detail: "LLMs · RAG · Agents · PyTorch" },
-];
+const chapters = ["hero", "approach", "stack", "work", "experience", "contact"] as const;
 
 const projects = [
   {
@@ -106,13 +100,15 @@ function useJourney() {
       frame = 0;
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(updateProgress); };
-    updateProgress();
+    frame = requestAnimationFrame(updateProgress);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    window.addEventListener("hashchange", onScroll);
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      window.removeEventListener("hashchange", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
@@ -186,7 +182,7 @@ export default function Home() {
       <Navigation active={active} />
 
       <aside className="journey-progress" ref={progressRef} aria-hidden="true">
-        <span>01</span><div><i /></div><span>05</span>
+        <span>01</span><div><i /></div><span>06</span>
       </aside>
 
       <section id="hero" className="scene hero-scene is-visible">
@@ -226,18 +222,15 @@ export default function Home() {
             <div><dt>Approach</dt><dd>Product thinking · Engineering depth</dd></div>
           </dl>
         </div>
-        <div className="capability-list reveal">
-          {capabilities.map((item) => (
-            <article key={item.number}>
-              <span>{item.number}</span><h3>{item.title}</h3><p>{item.detail}</p><i aria-hidden="true">↗</i>
-            </article>
-          ))}
-        </div>
+      </section>
+
+      <section id="stack" className="scene technology-scene">
+        <TechnologyEcosystem />
       </section>
 
       <section id="work" className="scene work-scene">
         <div className="work-intro reveal">
-          <SceneLabel index="03">SELECTED SYSTEMS / 2023—2026</SceneLabel>
+          <SceneLabel index="04">SELECTED SYSTEMS / 2023—2026</SceneLabel>
           <h2>Work with<br /><em>purpose.</em></h2>
           <p>Selected work spanning intelligent products, operational software, and cloud platforms.</p>
         </div>
@@ -268,7 +261,7 @@ export default function Home() {
 
       <section id="experience" className="scene experience-scene">
         <div className="experience-heading reveal">
-          <SceneLabel index="04">EXPERIENCE / MILESTONES</SceneLabel>
+          <SceneLabel index="05">EXPERIENCE / MILESTONES</SceneLabel>
           <h2>A path of<br /><em>making.</em></h2>
           <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank">Download résumé <Arrow down /></a>
         </div>
@@ -285,7 +278,7 @@ export default function Home() {
 
       <section id="contact" className="scene contact-scene">
         <div className="contact-copy reveal">
-          <SceneLabel index="05">THE NEXT CHAPTER</SceneLabel>
+          <SceneLabel index="06">THE NEXT CHAPTER</SceneLabel>
           <p className="contact-kicker">HAVE A COMPLEX IDEA?</p>
           <h2>Let&apos;s build<br /><em>something</em> together.</h2>
           <a className="primary-cta primary-cta--light" href="mailto:yobicod.4u@gmail.com"><span>Start a conversation</span><Arrow /></a>
