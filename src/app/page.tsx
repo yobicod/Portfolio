@@ -250,10 +250,17 @@ function PortfolioContent() {
         </MotionReveal>
         <MotionReveal className="timeline" delay={0.12}>
           {t.experience.entries.map(({ date, role, company, description }, index) => (
-            <article className="timeline-item" key={`${date}-${role}`}>
+            <article className={`timeline-item${index === 0 ? " timeline-item--current" : ""}`} key={`${date}-${role}`}>
               <span className="timeline-number">0{index + 1}</span>
               <time>{date}</time>
-              <div><h3>{role}</h3><span>{company}</span><p>{description}</p></div>
+              <div>
+                <div className="timeline-role">
+                  <h3>{role}</h3>
+                  {index === 0 && <span className="timeline-current-badge">{t.experience.current}</span>}
+                </div>
+                <span className="timeline-company">{company}</span>
+                <p>{description}</p>
+              </div>
             </article>
           ))}
         </MotionReveal>

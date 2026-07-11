@@ -24,6 +24,19 @@ export default function SystemNarrativeVisual({ project }: { project: Project })
             <i className="narrative-flow__pulse" />
           </div>
         )}
+        {visualKind === "operations" && (
+          <div className="narrative-hotspot">
+            <i className="narrative-hotspot__ring" />
+            <i className="narrative-hotspot__arrow narrative-hotspot__arrow--left" />
+            <i className="narrative-hotspot__arrow narrative-hotspot__arrow--right" />
+          </div>
+        )}
+        {visualKind === "cloud" && (
+          <div className="maintenance-flow">
+            <i className="maintenance-flow__request" />
+            <i className="maintenance-flow__orbit" />
+          </div>
+        )}
         {visual.nodes.map((node, index) => (
           <div className="narrative-node" data-node={index + 1} key={node}>
             <span>0{index + 1}</span>

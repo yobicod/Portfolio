@@ -78,12 +78,12 @@ export const en = {
     projects: [
       { id: "gen-ai-knowledge-system", number: "01", title: "Gen-AI Knowledge System", category: "Intelligent system", problem: "Turning fragmented knowledge into dependable answers.", description: "A production knowledge engine designed for accurate, real-time customer and internal support.", responsibility: "Product architecture · Full-stack delivery · AI integration", systemApproach: "Trusted sources move through retrieval and grounding before a guarded model response reaches the user.", impact: "Faster access to trusted operational knowledge", stack: ["LLM", "RAG", "TypeScript", "Python"], visualKind: "knowledge" },
       { id: "operations-platform", number: "02", title: "Operations Platform", category: "Product engineering", problem: "Making complex workflows feel calm and obvious.", description: "A microservice-based workspace that connects internal management and operational workflows.", responsibility: "System design · Frontend engineering · Backend services", systemApproach: "A shared workspace coordinates service boundaries, queued work, and operational state without exposing that complexity to teams.", impact: "One clearer workflow across operational teams", stack: ["Next.js", "Node.js", "PostgreSQL"], visualKind: "operations" },
-      { id: "cloud-maintenance-suite", number: "03", title: "Cloud Maintenance Suite", category: "Cloud platform", problem: "Connecting teams, assets, and field work.", description: "A cloud-native product that brings maintenance data and field operations into one system.", responsibility: "Interface design · Cloud architecture · Infrastructure", systemApproach: "Field activity and asset records synchronize through a cloud core so every team works from the same operational state.", impact: "A shared source of truth for maintenance work", stack: ["React", "AWS", "Terraform"], visualKind: "cloud" },
+      { id: "cloud-maintenance-suite", number: "03", title: "Maintenance System", category: "Workflow system", problem: "Coordinating maintenance requests from report to sign-off.", description: "A maintenance workflow where users report issues, administrators review requests, and staff complete repairs with transparent status and cost updates.", responsibility: "Workflow design · Full-stack delivery · Role-based access", systemApproach: "Users submit reports, administrators accept or reject them, and staff record repairs and costs while updating both users and administrators. The head of department signs off completed work.", impact: "Clear ownership and traceability across every maintenance request", stack: ["React", "AWS", "Terraform"], visualKind: "cloud" },
     ],
     visuals: {
       knowledge: { nodes: ["Sources", "Retrieval", "LLM", "Answer"], core: "Grounded context" },
       operations: { nodes: ["Intake", "Service", "Queue", "Workspace"], core: "Shared state" },
-      cloud: { nodes: ["Assets", "Field", "Sync", "Teams"], core: "Cloud core" },
+      cloud: { nodes: ["Report", "Review", "Repair + cost", "Sign-off"], core: "Work order" },
     },
   },
   experience: {
@@ -91,6 +91,7 @@ export const en = {
     title: "A path of",
     titleEmphasis: "making.",
     resume: "Download résumé",
+    current: "Current",
     entries: [
       { date: "2025 — now", role: "Full Stack Engineer", company: "Amity Solutions", description: "Building production AI products and high-trust software systems." },
       { date: "2024 — 2025", role: "Junior Full Stack Engineer", company: "Amity Solutions", description: "Shipped a Gen-AI knowledge base for customer and internal support." },
