@@ -3,6 +3,7 @@
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import BuilderDesk from "@/components/BuilderDesk";
+import Certificates from "@/components/Certificates";
 import Hero3D from "@/components/Hero3D";
 import HeroPortrait from "@/components/HeroPortrait";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -16,8 +17,8 @@ import TechnologyEcosystem from "@/components/TechnologyEcosystem";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 import { I18nProvider, useTranslation } from "@/i18n/I18nProvider";
 
-const chapters = ["hero", "work", "approach", "stack", "experience", "contact"] as const;
-const navigationChapters = ["work", "approach", "stack", "experience", "contact"] as const;
+const chapters = ["hero", "work", "approach", "stack", "experience", "certificates", "contact"] as const;
+const navigationChapters = ["work", "approach", "stack", "experience", "certificates", "contact"] as const;
 
 const CONTACT_EMAIL = "yobicod.4u@gmail.com";
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -245,7 +246,11 @@ function PortfolioContent() {
         <p className="section-foot"><a className="link-arrow" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.experience.resume}</a></p>
       </section>
 
-      <section id="contact" className="section contact" aria-labelledby="contact-title">
+      <section id="certificates" className="section" aria-labelledby="certificates-title">
+        <Certificates />
+      </section>
+
+      <section id="contact" className="section section--alt contact" aria-labelledby="contact-title">
         <span className="contact-glow" aria-hidden="true" />
         <MotionReveal className="contact-copy container" y={40}>
           <p className="eyebrow">{t.contact.kicker}</p>
