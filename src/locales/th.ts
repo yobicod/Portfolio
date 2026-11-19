@@ -130,7 +130,7 @@ export const th = {
     credentialId: "รหัสใบรับรอง",
     entries: [
       { name: "AWS Certified Developer – Associate", issuer: "Amazon Web Services (AWS)", issued: "พ.ย. 2026", expires: "พ.ย. 2029", credentialId: "", url: "https://www.credly.com/badges/8860f319-cceb-42c5-b095-2d6bc53cb3b6/linked_in_profile" },
-      { name: "AI Coding Agent SDLC", issuer: "Mikelopster", issued: "ส.ค. 2026", expires: "", credentialId: "", url: "https://beta.mikelopster.dev/api/learner/certificates/6a6f4bce5346b3d3bcafd654/image" },
+      { name: "AI Coding Agent SDLC", issuer: "Mikelopster", issued: "ส.ค. 2026", expires: "", credentialId: "", url: "" },
       { name: "Applied AI Foundations", issuer: "OpenAI", issued: "ก.ค. 2026", expires: "", credentialId: "niezolr6vp", url: "https://academy.openai.com/public/certificate/niezolr6vp" },
       { name: "AI Foundations", issuer: "OpenAI", issued: "ก.ค. 2026", expires: "", credentialId: "v0qj2zrltl", url: "https://academy.openai.com/public/certificate/v0qj2zrltl" },
       { name: "Gemini Certified Educator", issuer: "Google for Education", issued: "ก.ย. 2025", expires: "ก.ย. 2028", credentialId: "160809577", url: "https://edu.google.accredible.com/bf809d5f-0469-475c-a3f8-197d4a430e18" },

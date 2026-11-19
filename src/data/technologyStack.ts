@@ -82,9 +82,9 @@ export const technologies: Technology[] = [
   tech("elasticsearch", "Elasticsearch", "databases", siElasticsearch),
 
   tech("docker", "Docker", "cloudDevOps", siDocker),
-  tech("aws", "AWS", "cloudDevOps", undefined, "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"),
+  tech("aws", "AWS", "cloudDevOps", undefined, "https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"),
   tech("github-actions", "GitHub Actions", "cloudDevOps", siGithubactions),
   tech("terraform", "Terraform", "cloudDevOps", siTerraform),
   tech("kubernetes", "Kubernetes", "cloudDevOps", siKubernetes),
-  tech("azure", "Azure", "cloudDevOps", undefined, "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg"),
+  tech("azure", "Azure", "cloudDevOps", undefined, "https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/icons/azure/azure-original.svg"),
 ];
