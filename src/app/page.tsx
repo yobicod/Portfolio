@@ -1,64 +1,54 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ProjectChapter from "@/components/ProjectChapter";
+import BuilderDesk from "@/components/BuilderDesk";
+import Hero3D from "@/components/Hero3D";
+import HeroPortrait from "@/components/HeroPortrait";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MagneticLink from "@/components/MagneticLink";
 import MotionReveal from "@/components/MotionReveal";
-import SignaturePortrait from "@/components/SignaturePortrait";
+import ProjectChapter from "@/components/ProjectChapter";
+import ScrollWords from "@/components/ScrollWords";
 import TechnologyEcosystem from "@/components/TechnologyEcosystem";
-import ExperienceLoader from "@/components/ExperienceLoader";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { GITHUB_URL, LINKEDIN_URL } from "@/constants/link";
 import { I18nProvider, useTranslation } from "@/i18n/I18nProvider";
 
-const WebGLAtmosphere = dynamic(() => import("@/components/WebGLAtmosphere"), {
-  ssr: false,
-});
-
-const chapters = ["hero", "approach", "stack", "work", "experience", "contact"] as const;
-const navigationChapters = ["approach", "stack", "work", "experience", "contact"] as const;
+const chapters = ["hero", "work", "approach", "stack", "experience", "contact"] as const;
+const navigationChapters = ["work", "approach", "stack", "experience", "contact"] as const;
 
 const CONTACT_EMAIL = "yobicod.4u@gmail.com";
+const ease = [0.22, 1, 0.36, 1] as const;
 
-function Arrow({ down = false }: { down?: boolean }) {
+/** Headline words that rise out of a blur one after another when the page opens. */
+function Words({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+  const reducedMotion = useReducedMotion();
   return (
-    <svg className={down ? "arrow arrow--down" : "arrow"} viewBox="0 0 18 18" aria-hidden="true">
-      <path d="M3 15 15 3M6 3h9v9" />
-    </svg>
+    <>
+      {text.split(" ").map((word, index) => (
+        <motion.span
+          className={className ? `word ${className}` : "word"}
+          key={`${word}-${index}`}
+          initial={reducedMotion ? false : { opacity: 0, y: "0.45em", filter: "blur(14px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1, delay: delay + index * 0.09, ease }}
+        >
+          {word}{" "}
+        </motion.span>
+      ))}
+    </>
   );
 }
 
-function SceneLabel({ index, children }: { index: string; children: React.ReactNode }) {
-  return <p className="scene-label"><span>{index}</span>{children}</p>;
-}
-
-function useJourney() {
+/** Tracks which chapter sits at the reading line, for the navigation's current state. */
+function useActiveChapter() {
   const [active, setActive] = useState("hero");
-  const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const sections = chapters.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible"));
-      },
-      { rootMargin: "-28% 0px -48%", threshold: [0, 0.2, 0.5, 0.8] },
-    );
-    sections.forEach((section) => observer.observe(section));
-
     let frame = 0;
-    const updateProgress = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? window.scrollY / max : 0;
-      progressRef.current?.style.setProperty("--journey-progress", `${progress}`);
-      document.documentElement.style.setProperty("--scroll-progress", `${progress}`);
-      sections.forEach((section) => {
-        const bounds = section.getBoundingClientRect();
-        const local = Math.max(0, Math.min(1, (window.innerHeight - bounds.top) / (bounds.height + window.innerHeight)));
-        section.style.setProperty("--scene-progress", `${local}`);
-      });
-      const focusLine = window.innerHeight * .42;
+    const update = () => {
+      const focusLine = window.innerHeight * 0.42;
       const current = sections.find((section) => {
         const bounds = section.getBoundingClientRect();
         return bounds.top <= focusLine && bounds.bottom > focusLine;
@@ -66,25 +56,24 @@ function useJourney() {
       if (current) setActive(current.id);
       frame = 0;
     };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(updateProgress); };
-    frame = requestAnimationFrame(updateProgress);
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    frame = requestAnimationFrame(update);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-    window.addEventListener("hashchange", onScroll);
     return () => {
-      observer.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      window.removeEventListener("hashchange", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);
 
-  return { active, progressRef };
+  return active;
 }
 
 function Navigation({ active }: { active: string }) {
   const { t } = useTranslation();
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 });
   const [open, setOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -127,37 +116,37 @@ function Navigation({ active }: { active: string }) {
 
   return (
     <header className={active === "hero" ? "nav-shell" : "nav-shell is-scrolled"} ref={headerRef}>
-      <a className="brand" href="#hero" aria-label={t.nav.brandLabel} onClick={() => closeMenu()}>
-        <b>V</b><span>VISAL<br />SUWANARAT</span>
-      </a>
-      <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label={t.nav.primaryLabel}>
-        {navigationChapters.map((chapter, index) => (
-          <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => closeMenu()}>
-            <span>0{index + 2}</span>{t.nav[chapter]}
-          </a>
-        ))}
-        <div className="language-switcher language-switcher--mobile"><LanguageSwitcher /></div>
-      </nav>
-      <a className="nav-status" href="#contact" onClick={() => closeMenu()}><i /> {t.nav.availability}</a>
-      <div className="language-switcher--desktop"><LanguageSwitcher /></div>
-      <button
-        type="button"
-        className="menu-toggle"
-        ref={toggleRef}
-        onClick={() => open ? closeMenu(true) : setOpen(true)}
-        aria-label={open ? t.nav.menuClose : t.nav.menuOpen}
-        aria-controls="primary-navigation"
-        aria-expanded={open}
-      >
-        <span /><span />
-      </button>
+      <div className="nav-inner">
+        <a className="brand" href="#hero" aria-label={t.nav.brandLabel} onClick={() => closeMenu()}>visal<span>.</span></a>
+        <nav id="primary-navigation" className={open ? "nav-links is-open" : "nav-links"} aria-label={t.nav.primaryLabel}>
+          {navigationChapters.map((chapter) => (
+            <a key={chapter} href={`#${chapter}`} aria-current={active === chapter ? "location" : undefined} onClick={() => closeMenu()}>
+              {t.nav[chapter]}
+            </a>
+          ))}
+          <div className="language-switcher--mobile"><LanguageSwitcher /></div>
+        </nav>
+        <div className="language-switcher--desktop"><LanguageSwitcher /></div>
+        <button
+          type="button"
+          className="menu-toggle"
+          ref={toggleRef}
+          onClick={() => open ? closeMenu(true) : setOpen(true)}
+          aria-label={open ? t.nav.menuClose : t.nav.menuOpen}
+          aria-controls="primary-navigation"
+          aria-expanded={open}
+        >
+          <span /><span />
+        </button>
+      </div>
+      <motion.div className="scroll-progress" style={{ scaleX: progress }} aria-hidden="true" />
     </header>
   );
 }
 
 function PortfolioContent() {
   const { t } = useTranslation();
-  const { active, progressRef } = useJourney();
+  const active = useActiveChapter();
   const [copyStatus, setCopyStatus] = useState("");
   const copyStatusTimer = useRef<number | undefined>(undefined);
 
@@ -175,103 +164,90 @@ function PortfolioContent() {
   };
 
   return (
-    <main className="experience" data-chapter={active}>
-      <ExperienceLoader />
+    <main className="page">
       <div className="skip-links">
         <a className="skip-link" href="#approach">{t.utility.skipContent}</a>
         <a className="skip-link" href="#work">{t.utility.skipWork}</a>
       </div>
-      <WebGLAtmosphere />
-      <div className="noise" aria-hidden="true" />
-      <div className="vignette" aria-hidden="true" />
       <Navigation active={active} />
 
-      <nav className="journey-progress" ref={progressRef} aria-label={t.utility.journey}>
-        <span aria-hidden="true">01</span><div aria-hidden="true"><i /></div><span aria-hidden="true">06</span>
-        <a className="journey-progress__target journey-progress__target--start" href="#hero"><span className="sr-only">{t.utility.journeyStart}</span></a>
-        <a className="journey-progress__target journey-progress__target--end" href="#contact"><span className="sr-only">{t.utility.journeyEnd}</span></a>
-      </nav>
-
-      <section id="hero" className="scene hero-scene is-visible" aria-labelledby="hero-title">
-        <MotionReveal className="hero-copy" y={34}>
-          <SceneLabel index="01">{t.hero.label}</SceneLabel>
-          <h1 id="hero-title">{t.hero.title}<br /><em>{t.hero.titleEmphasis}</em></h1>
-          <p>{t.hero.description}</p>
-          <div className="hero-actions">
-            <MagneticLink className="primary-cta" href="#work"><span>{t.hero.explore}</span><Arrow down /></MagneticLink>
-            <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.hero.resume} <Arrow /></a>
-          </div>
-          <dl className="hero-facts">
-            <div><dt>{t.hero.focus}</dt><dd>{t.hero.focusValue}</dd></div>
-            <div><dt>{t.hero.craft}</dt><dd>{t.hero.craftValue}</dd></div>
-            <div><dt>{t.hero.base}</dt><dd>{t.hero.baseValue}</dd></div>
-          </dl>
-        </MotionReveal>
-
-        <SignaturePortrait />
-
-        <p className="scroll-cue">{t.hero.scroll} <span>↓</span></p>
+      <section id="hero" className="hero" aria-labelledby="hero-title">
+        <Hero3D />
+        <div className="hero-copy container">
+          <MotionReveal y={12}><a className="status-pill" href="#contact"><i />{t.nav.availability}</a></MotionReveal>
+          <p className="eyebrow"><Words text={t.hero.introduction} /></p>
+          <h1 id="hero-title"><Words text={t.hero.title} delay={0.15} /><br /><Words text={t.hero.titleEmphasis} className="gradient-text" delay={0.35} /></h1>
+          <MotionReveal delay={0.55}><p className="hero-lead">{t.hero.description}</p></MotionReveal>
+          <MotionReveal className="actions" delay={0.7}>
+            <MagneticLink className="button" href="#work">{t.hero.explore}</MagneticLink>
+            <a className="link-arrow" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.hero.resume}</a>
+          </MotionReveal>
+        </div>
+        <HeroPortrait />
+        <div className="container"><BuilderDesk /></div>
       </section>
 
-      <section id="approach" className="scene about-scene" aria-labelledby="approach-title">
-        <MotionReveal className="about-heading">
-          <SceneLabel index="02">{t.approach.label}</SceneLabel>
-          <h2 id="approach-title">{t.approach.title}<br /><em>{t.approach.titleEmphasis}</em></h2>
+      <section id="work" className="section section--alt" aria-labelledby="work-title">
+        <MotionReveal className="section-head container">
+          <p className="eyebrow">{t.work.label}</p>
+          <h2 id="work-title">{t.work.title} <em>{t.work.titleEmphasis}</em></h2>
+          <p>{t.work.description}</p>
         </MotionReveal>
-        <MotionReveal className="about-copy" delay={0.12}>
-          <p className="about-lead">{t.approach.lead} <em>{t.approach.leadEmphasis}</em></p>
+        <div className="project-list container">
+          {t.work.projects.map((project) => <ProjectChapter project={project} key={project.id} />)}
+        </div>
+        <p className="section-foot"><a className="link-arrow" href={GITHUB_URL} target="_blank" rel="noreferrer">{t.work.archive}</a></p>
+      </section>
+
+      <section id="approach" className="section section--dark" aria-labelledby="approach-title">
+        <MotionReveal className="section-head container">
+          <p className="eyebrow">{t.approach.label}</p>
+          <h2 id="approach-title">{t.approach.title} <em>{t.approach.titleEmphasis}</em></h2>
+        </MotionReveal>
+        <div className="container">
+          <ScrollWords className="scroll-statement" text={t.approach.lead} emphasis={t.approach.leadEmphasis} />
           <ol className="practice-steps">
-            {t.approach.steps.map((step, index) => <li key={step.title}><span>0{index + 1}</span><div><strong>{step.title}</strong><p>{step.description}</p></div></li>)}
+            {t.approach.steps.map((step, index) => (
+              <MotionReveal as="li" key={step.title} delay={index * 0.1}>
+                <span>0{index + 1}</span><strong>{step.title}</strong><p>{step.description}</p>
+              </MotionReveal>
+            ))}
           </ol>
-        </MotionReveal>
+        </div>
       </section>
 
-      <section id="stack" className="scene technology-scene" aria-labelledby="stack-title">
+      <section id="stack" className="section" aria-labelledby="stack-title">
         <TechnologyEcosystem />
       </section>
 
-      <section id="work" className="scene work-scene" aria-labelledby="work-title">
-        <MotionReveal className="work-intro">
-          <SceneLabel index="04">{t.work.label}</SceneLabel>
-          <h2 id="work-title">{t.work.title}<br /><em>{t.work.titleEmphasis}</em></h2>
-          <p>{t.work.description}</p>
+      <section id="experience" className="section section--alt" aria-labelledby="experience-title">
+        <MotionReveal className="section-head container">
+          <p className="eyebrow">{t.experience.label}</p>
+          <h2 id="experience-title">{t.experience.title} <em>{t.experience.titleEmphasis}</em></h2>
         </MotionReveal>
-        <div className="project-list">
-          {t.work.projects.map((project, index) => <ProjectChapter project={project} featured={index === 0} key={project.id} />)}
-        </div>
-        <a className="work-link" href={GITHUB_URL} target="_blank" rel="noreferrer"><span>{t.work.archive}</span><Arrow /></a>
-      </section>
-
-      <section id="experience" className="scene experience-scene" aria-labelledby="experience-title">
-        <MotionReveal className="experience-heading">
-          <SceneLabel index="05">{t.experience.label}</SceneLabel>
-          <h2 id="experience-title">{t.experience.title}<br /><em>{t.experience.titleEmphasis}</em></h2>
-          <a className="text-link" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.experience.resume} <Arrow down /></a>
-        </MotionReveal>
-        <MotionReveal className="timeline" delay={0.12}>
+        <div className="timeline container">
           {t.experience.entries.map(({ date, role, company, description }, index) => (
-            <article className={`timeline-item${index === 0 ? " timeline-item--current" : ""}`} key={`${date}-${role}`}>
-              <span className="timeline-number">0{index + 1}</span>
+            <MotionReveal as="article" className="timeline-item" key={`${date}-${role}`} delay={index * 0.08}>
               <time>{date}</time>
               <div>
-                <div className="timeline-role">
-                  <h3>{role}</h3>
-                  {index === 0 && <span className="timeline-current-badge">{t.experience.current}</span>}
-                </div>
+                <h3>{role}{index === 0 && <span className="timeline-current-badge"><i />{t.experience.current}</span>}</h3>
                 <span className="timeline-company">{company}</span>
                 <p>{description}</p>
               </div>
-            </article>
+            </MotionReveal>
           ))}
-        </MotionReveal>
+        </div>
+        <p className="section-foot"><a className="link-arrow" href="/visal_suwanarat_cv.pdf" target="_blank" rel="noreferrer">{t.experience.resume}</a></p>
       </section>
 
-      <section id="contact" className="scene contact-scene" aria-labelledby="contact-title">
-        <MotionReveal className="contact-copy" y={32}>
-          <SceneLabel index="06">{t.contact.label}</SceneLabel>
-          <p className="contact-kicker">{t.contact.kicker}</p>
-          <h2 id="contact-title">{t.contact.title}<br /><em>{t.contact.titleEmphasis}</em> {t.contact.titleEnd}</h2>
-          <MagneticLink className="primary-cta primary-cta--light" href={`mailto:${CONTACT_EMAIL}`}><span>{t.contact.start}</span><Arrow /></MagneticLink>
+      <section id="contact" className="section contact" aria-labelledby="contact-title">
+        <span className="contact-glow" aria-hidden="true" />
+        <MotionReveal className="contact-copy container" y={40}>
+          <p className="eyebrow">{t.contact.kicker}</p>
+          <h2 id="contact-title">{t.contact.title} <span className="gradient-text">{t.contact.titleEmphasis}</span> {t.contact.titleEnd}</h2>
+          <div className="actions">
+            <MagneticLink className="button button--large" href={`mailto:${CONTACT_EMAIL}`}>{t.contact.start}</MagneticLink>
+          </div>
           <div className="contact-options">
             <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
             <button type="button" onClick={copyEmail}>{t.contact.copy}</button>
@@ -279,11 +255,14 @@ function PortfolioContent() {
           </div>
           <p className="copy-status" aria-live="polite">{copyStatus}</p>
         </MotionReveal>
-        <footer>
-          <div><span>{t.footer.copyright}</span><span>{t.footer.intent}</span></div>
-          <nav aria-label={t.utility.social}><a href={GITHUB_URL} target="_blank" rel="noreferrer">{t.footer.github}</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">{t.footer.linkedIn}</a><a href="#hero">{t.footer.top}</a></nav>
-        </footer>
       </section>
+
+      <footer className="footer">
+        <div className="container">
+          <p><span>{t.footer.copyright}</span><span>{t.footer.intent}</span></p>
+          <nav aria-label={t.utility.social}><a href={GITHUB_URL} target="_blank" rel="noreferrer">{t.footer.github}</a><a href={LINKEDIN_URL} target="_blank" rel="noreferrer">{t.footer.linkedIn}</a><a href="#hero">{t.footer.top}</a></nav>
+        </div>
+      </footer>
     </main>
   );
 }

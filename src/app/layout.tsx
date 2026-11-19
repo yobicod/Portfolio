@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
-import { DM_Mono, Manrope, Noto_Sans_Thai } from "next/font/google";
+import { Inter, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { en } from "@/locales/en";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const dmMono = DM_Mono({
-  variable: "--font-dm-mono",
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
 });
 
 const notoSansThai = Noto_Sans_Thai({
   variable: "--font-thai",
   subsets: ["thai"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -37,13 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <meta name="theme-color" content="#060708" />
+        <meta name="theme-color" content="#ffffff" />
       </head>
       <body
-        className={`${manrope.variable} ${dmMono.variable} ${notoSansThai.variable} antialiased`}
+        className={`${inter.variable} ${notoSansThai.variable} antialiased`}
         suppressHydrationWarning
       >
         {children}
