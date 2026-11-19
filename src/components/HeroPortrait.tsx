@@ -43,7 +43,9 @@ export default function HeroPortrait() {
         transition={{ duration: 1.1, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
         <span className="portrait-glow" aria-hidden="true" />
-        <Image className="portrait-photo" src="/visal.png" alt={t.desk.photo} width={1254} height={1254} priority sizes="(max-width: 760px) 240px, 340px" />
+        <div className="portrait-face">
+          <Image className="portrait-photo" src="/visal.png" alt={t.desk.photo} width={1254} height={1254} priority sizes="(max-width: 760px) 240px, 340px" />
+        </div>
         <dl className="portrait-chips">
           {chips.map((chip, index) => (
             <div className="chip" data-chip={index + 1} key={chip.label}><dt>{chip.label}</dt><dd>{chip.value}</dd></div>

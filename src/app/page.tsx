@@ -6,7 +6,9 @@ import BuilderDesk from "@/components/BuilderDesk";
 import Hero3D from "@/components/Hero3D";
 import HeroPortrait from "@/components/HeroPortrait";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import LiquidText from "@/components/LiquidText";
 import MagneticLink from "@/components/MagneticLink";
+import CopyConfetti from "@/components/CopyConfetti";
 import MotionReveal from "@/components/MotionReveal";
 import ProjectChapter from "@/components/ProjectChapter";
 import ScrollWords from "@/components/ScrollWords";
@@ -148,6 +150,7 @@ function PortfolioContent() {
   const { t } = useTranslation();
   const active = useActiveChapter();
   const [copyStatus, setCopyStatus] = useState("");
+  const [celebration, setCelebration] = useState(0);
   const copyStatusTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(copyStatusTimer.current), []);
@@ -156,6 +159,7 @@ function PortfolioContent() {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       setCopyStatus(t.contact.copied);
+      setCelebration((count) => count + 1);
     } catch {
       setCopyStatus(t.contact.copyUnavailable);
     }
@@ -170,13 +174,14 @@ function PortfolioContent() {
         <a className="skip-link" href="#work">{t.utility.skipWork}</a>
       </div>
       <Navigation active={active} />
+      <CopyConfetti celebration={celebration} />
 
       <section id="hero" className="hero" aria-labelledby="hero-title">
         <Hero3D />
         <div className="hero-copy container">
           <MotionReveal y={12}><a className="status-pill" href="#contact"><i />{t.nav.availability}</a></MotionReveal>
           <p className="eyebrow"><Words text={t.hero.introduction} /></p>
-          <h1 id="hero-title"><Words text={t.hero.title} delay={0.15} /><br /><Words text={t.hero.titleEmphasis} className="gradient-text" delay={0.35} /></h1>
+          <LiquidText id="hero-title"><Words text={t.hero.title} delay={0.15} /><br /><Words text={t.hero.titleEmphasis} className="gradient-text" delay={0.35} /></LiquidText>
           <MotionReveal delay={0.55}><p className="hero-lead">{t.hero.description}</p></MotionReveal>
           <MotionReveal className="actions" delay={0.7}>
             <MagneticLink className="button" href="#work">{t.hero.explore}</MagneticLink>
@@ -244,7 +249,7 @@ function PortfolioContent() {
         <span className="contact-glow" aria-hidden="true" />
         <MotionReveal className="contact-copy container" y={40}>
           <p className="eyebrow">{t.contact.kicker}</p>
-          <h2 id="contact-title">{t.contact.title} <span className="gradient-text">{t.contact.titleEmphasis}</span> {t.contact.titleEnd}</h2>
+          <LiquidText as="h2" id="contact-title">{t.contact.title} <span className="gradient-text">{t.contact.titleEmphasis}</span> {t.contact.titleEnd}</LiquidText>
           <div className="actions">
             <MagneticLink className="button button--large" href={`mailto:${CONTACT_EMAIL}`}>{t.contact.start}</MagneticLink>
           </div>
